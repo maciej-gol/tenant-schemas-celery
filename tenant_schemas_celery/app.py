@@ -53,7 +53,7 @@ from __future__ import absolute_import
 try:
     from celery import Celery
 except ImportError:
-    raise ImportError("celery is required to use tenant_schemas.contrib.celery")
+    raise ImportError("celery is required to use tenant_schemas_celery")
 
 from django.db import connection
 
@@ -79,6 +79,6 @@ task_prerun.connect(switch_schema, sender=None,
 
 class CeleryApp(Celery):
     def create_task_cls(self):
-        return self.subclass_with_self('tenant_schemas.contrib.celery.task:TenantTask',
-                                        abstract=True, name='TenantTask',
-                                        attribute='_app')
+        return self.subclass_with_self('tenant_schemas_celery.task:TenantTask',
+                                       abstract=True, name='TenantTask',
+                                       attribute='_app')
