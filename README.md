@@ -1,50 +1,48 @@
 tenant-schemas-celery
 =====================
 
-Usage:
-    * Define a celery app using given `CeleryApp` class.
+Usage
+-----
+
+   * Define a celery app using given `CeleryApp` class.
 
 ```python
-    import os
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
+   import os
+   os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 
-    from django.conf import settings
+   from django.conf import settings
 
-    from tenant_schemas_celery.app import CeleryApp
+   from tenant_schemas_celery.app import CeleryApp
 
-    app = CeleryApp()
-    app.config_from_object('django.conf:settings')
-    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+   app = CeleryApp()
+   app.config_from_object('django.conf:settings')
+   app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 ```
 
-    This assumes a fresh Celery 3.1.13 application. For previous versions,
-    the key is to create a new `CeleryApp` instance that will be used to
-    access task decorator from.
+This assumes a fresh Celery 3.1.13 application. For previous versions, the key is to create a new `CeleryApp` instance that will be used to access task decorator from.
 
-    * Replace your @task decorator with @app.task
+   * Replace your `@task` decorator with `@app.task`
 
 ```python
-    from django.db import connection
-    from myproject.celery import app
+   from django.db import connection
+   from myproject.celery import app
 
-    @app.task
-    def my_task():
-        print connection.schema_name
+   @app.task
+   def my_task():
+      print connection.schema_name
 ```
 
-    * Run celery worker (`myproject.celery` is where you've defined the `app`
-      variable)
+   * Run celery worker (`myproject.celery` is where you've defined the `app` variable)
 
-```python
+```bash
     $ celery worker -A myproject.celery
 ```
 
-    * Post registered task. The schema name will get automatically added to the
-      task's arguments.
+   * Post registered task. The schema name will get automatically added to the task's arguments.
 
 ```python
-    from myproject.tasks import my_task
-    my_task.delay()
+   from myproject.tasks import my_task
+   my_task.delay()
 ```
 
 The `TenantTask` class transparently inserts current connection's schema into
