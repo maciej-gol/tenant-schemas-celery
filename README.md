@@ -5,7 +5,7 @@ Installation
 ------------
 
 ```bash
-$ pip install tenant_schemas_celery
+$ pip install tenant-schemas-celery
 ```
 
 Usage
