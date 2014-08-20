@@ -1,6 +1,13 @@
 tenant-schemas-celery
 =====================
 
+Installation
+------------
+
+```bash
+$ pip install tenant_schemas_celery
+```
+
 Usage
 -----
 
