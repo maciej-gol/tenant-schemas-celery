@@ -4,6 +4,7 @@ from django.utils.unittest import skipIf
 
 from tenant_schemas.tests.models import Tenant, DummyModel
 from tenant_schemas.tests.testcases import BaseTestCase
+from tenant_schemas.utils import get_public_schema_name
 
 try:
     from .app import CeleryApp
@@ -63,7 +64,10 @@ class CeleryTasksTests(BaseTestCase):
 
         connection.set_tenant(self.tenant1)
         update_task.apply_async(args=(self.dummy1.pk, 'updated-name'))
+        self.assertEqual(connection.schema_name, self.tenant1.schema_name)
 
+        # The task restores the schema from before running the task, so we are
+        # using the `tenant1` tenant now.
         model_count = DummyModel.objects.filter(name='updated-name').count()
         self.assertEqual(model_count, 1)
 
@@ -78,3 +82,27 @@ class CeleryTasksTests(BaseTestCase):
 
         model_count = DummyModel.objects.filter(name='updated-name').count()
         self.assertEqual(model_count, 1)
+
+    def test_restoring_schema_name(self):
+        update_task.apply_async(
+            args=(self.dummy1.pk, 'updated-name'),
+            kwargs={'_schema_name': self.tenant1.schema_name}
+        )
+        self.assertEqual(connection.schema_name, get_public_schema_name())
+
+        connection.set_tenant(self.tenant1)
+        update_task.apply_async(
+            args=(self.dummy2.pk, 'updated-name'),
+            kwargs={'_schema_name': self.tenant2.schema_name}
+        )
+        self.assertEqual(connection.schema_name, self.tenant1.schema_name)
+
+        connection.set_tenant(self.tenant2)
+        # The model does not exist in the public schema.
+        with self.assertRaises(DummyModel.DoesNotExist):
+            update_task.apply_async(
+                args=(self.dummy2.pk, 'updated-name'),
+                kwargs={'_schema_name': get_public_schema_name()}
+            )
+
+        self.assertEqual(connection.schema_name, self.tenant2.schema_name)
