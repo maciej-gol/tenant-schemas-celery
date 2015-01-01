@@ -9,7 +9,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 with open('VERSION', 'rb') as v:
-    version = v.read().strip()
+    version = v.read().decode().strip()
 
 with open('README.md', 'rb') as ld:
     long_description = ld.read().strip()
