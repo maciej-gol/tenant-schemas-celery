@@ -12,7 +12,7 @@ with open('VERSION', 'rb') as v:
     version = v.read().decode().strip()
 
 with open('README.md', 'rb') as ld:
-    long_description = ld.read().strip()
+    long_description = ld.read().decode().strip()
 
 setup(
     author='Maciej Gol',
