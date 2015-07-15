@@ -22,9 +22,8 @@ setup(
         'Framework :: Django',
         'Programming Language :: Python',
     ],
-    description='Celery integration for django-tenant-schemas',
+    description='Celery integration for django-tenant-schemas and django-tenants',
     install_requires=[
-        'django-tenant-schemas',
         'celery'
     ],
     packages=find_packages(),

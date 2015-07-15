@@ -2,13 +2,15 @@ tenant-schemas-celery
 =====================
 
 Celery application implementation that allows celery tasks to cooperate with
-multi-tenancy provided by [django-tenant-schemas](https://github.com/bernardopires/django-tenant-schemas) package.
+multi-tenancy provided by [django-tenant-schemas](https://github.com/bernardopires/django-tenant-schemas) and
+[django-tenants](https://github.com/tomturner/django-tenants) packages.
 
 Installation
 ------------
 
 ```bash
    $ pip install tenant-schemas-celery
+   $ pip install django-tenants
 ```
 
 Usage
