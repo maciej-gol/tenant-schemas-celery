@@ -1,10 +1,10 @@
 from django.db import connection
+from django.db.models.fields import FieldDoesNotExist
 from django.utils.unittest import skipIf
 
-
-from tenant_schemas.tests.models import Tenant, DummyModel
-from tenant_schemas.tests.testcases import BaseTestCase
-from tenant_schemas.utils import get_public_schema_name
+from main.models import Client
+from test_app.models import DummyModel
+from .compat import get_public_schema_name, TenantTestCase
 
 try:
     from .app import CeleryApp
@@ -35,13 +35,31 @@ else:
 
 
 @skipIf(app is None, 'Celery is not available.')
-class CeleryTasksTests(BaseTestCase):
+class CeleryTasksTests(TenantTestCase):
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
     def setUp(self):
-        super(CeleryTasksTests, self).setUp()
-        self.tenant1 = Tenant(domain_url='test1', schema_name='test1')
+        kwargs1 = {}
+        kwargs2 = {}
+
+        try:
+            Client._meta.get_field('domain_url')
+        except FieldDoesNotExist:
+            pass
+        else:
+            kwargs1 = {'domain_url': 'test1.test.com'}
+            kwargs2 = {'domain_url': 'test2.test.com'}
+
+        self.tenant1 = Client(name='test1', schema_name='test1', **kwargs1)
         self.tenant1.save()
 
-        self.tenant2 = Tenant(domain_url='test2', schema_name='test2')
+        self.tenant2 = Client(name='test2', schema_name='test2', **kwargs2)
         self.tenant2.save()
 
         connection.set_tenant(self.tenant1)
@@ -50,6 +68,9 @@ class CeleryTasksTests(BaseTestCase):
         connection.set_tenant(self.tenant2)
         self.dummy2 = DummyModel.objects.create(name='test2')
 
+        connection.set_schema_to_public()
+
+    def tearDown(self):
         connection.set_schema_to_public()
 
     def test_basic_model_update(self):
