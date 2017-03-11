@@ -17,4 +17,14 @@ install:
   - "pip install \"Django<${DJANGO_LT}\" \"celery<${CELERY_LT}\""
   - pip install .
 
+services:
+  - postgresql
+
+addons:
+  postgresql: "9.5"
+
+before_script:
+  - psql -c "create user tenant_celery with password 'qwe123'" -U postgres
+  - psql -c "alter role tenant_celery createdb" -U postgres
+
 script: "cd test_app && python manage.py test tenant_schemas_celery"
