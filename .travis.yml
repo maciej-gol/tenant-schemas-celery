@@ -12,9 +12,9 @@ env:
   - DJANGO_LT=1.8 CELERY_LT=4.1
   - DJANGO_LT=1.9 CELERY_LT=4.1
   - DJANGO_LT=1.10 CELERY_LT=4.1
-  
+
 install:
   - "pip install \"Django<${DJANGO_LT}\" \"celery<${CELERY_LT}\""
   - pip install .
 
-script: pytest
+script: "cd test_app && python manage.py test tenant_schemas_celery"
