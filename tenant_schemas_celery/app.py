@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 try:
+    import celery
     from celery import Celery
 except ImportError:
     raise ImportError("celery is required to use tenant_schemas_celery")
@@ -8,6 +9,15 @@ except ImportError:
 from django.db import connection
 
 from celery.signals import task_prerun, task_postrun
+
+
+def get_schema_name_from_task(task, kwargs):
+    if celery.VERSION[0] < 4:
+        # Pop it from the kwargs since tasks don't except the additional kwarg.
+        # This change is transparent to the system.
+        return kwargs.pop('_schema_name', None)
+
+    return (task.request.headers or {}).get('_schema_name')
 
 
 def switch_schema(task, kwargs, **kw):
@@ -20,9 +30,10 @@ def switch_schema(task, kwargs, **kw):
     old_schema = (connection.schema_name, connection.include_public_schema)
     setattr(task, '_old_schema', old_schema)
 
-    # Pop it from the kwargs since tasks don't except the additional kwarg.
-    # This change is transparent to the system.
-    schema = kwargs.pop('_schema_name', get_public_schema_name())
+    schema = (
+        get_schema_name_from_task(task, kwargs) or
+        get_public_schema_name()
+    )
 
     # If the schema has not changed, don't do anything.
     if connection.schema_name == schema:

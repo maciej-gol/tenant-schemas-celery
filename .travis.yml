@@ -1,8 +1,6 @@
 language: python
 python:
   - "2.7"
-  - "3.2"
-  - "3.3"
   - "3.4"
   - "3.5"
 env:
@@ -12,9 +10,21 @@ env:
   - DJANGO_LT=1.8 CELERY_LT=4.1
   - DJANGO_LT=1.9 CELERY_LT=4.1
   - DJANGO_LT=1.10 CELERY_LT=4.1
-  
+
 install:
   - "pip install \"Django<${DJANGO_LT}\" \"celery<${CELERY_LT}\""
   - pip install .
 
-script: pytest
+services:
+  - postgresql
+
+addons:
+  postgresql: "9.5"
+
+sudo: required
+
+before_script:
+  - psql -c "create user tenant_celery with password 'qwe123'" -U postgres
+  - psql -c "alter role tenant_celery createdb" -U postgres
+
+script: "cd test_app && python manage.py test tenant_schemas_celery"

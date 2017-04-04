@@ -1,9 +1,11 @@
+from unittest import skipIf
+
 from django.db import connection
 from django.db.models.fields import FieldDoesNotExist
-from django.utils.unittest import skipIf
+from tenant_schemas.utils import schema_context, tenant_context
 
-from main.models import Client
-from test_app.models import DummyModel
+from test_app.shared.models import Client
+from test_app.tenant.models import DummyModel
 from .compat import get_public_schema_name, TenantTestCase
 
 try:
@@ -105,25 +107,20 @@ class CeleryTasksTests(TenantTestCase):
         self.assertEqual(model_count, 1)
 
     def test_restoring_schema_name(self):
-        update_task.apply_async(
-            args=(self.dummy1.pk, 'updated-name'),
-            kwargs={'_schema_name': self.tenant1.schema_name}
-        )
+        with tenant_context(self.tenant1):
+            update_task.apply_async(args=(self.dummy1.pk, 'updated-name'))
         self.assertEqual(connection.schema_name, get_public_schema_name())
 
         connection.set_tenant(self.tenant1)
-        update_task.apply_async(
-            args=(self.dummy2.pk, 'updated-name'),
-            kwargs={'_schema_name': self.tenant2.schema_name}
-        )
+
+        with tenant_context(self.tenant2):
+            update_task.apply_async(args=(self.dummy2.pk, 'updated-name'))
         self.assertEqual(connection.schema_name, self.tenant1.schema_name)
 
         connection.set_tenant(self.tenant2)
         # The model does not exist in the public schema.
         with self.assertRaises(DummyModel.DoesNotExist):
-            update_task.apply_async(
-                args=(self.dummy2.pk, 'updated-name'),
-                kwargs={'_schema_name': get_public_schema_name()}
-            )
+            with schema_context(get_public_schema_name()):
+                update_task.apply_async(args=(self.dummy2.pk, 'updated-name'))
 
         self.assertEqual(connection.schema_name, self.tenant2.schema_name)

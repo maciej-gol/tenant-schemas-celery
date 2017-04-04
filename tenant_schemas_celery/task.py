@@ -1,3 +1,4 @@
+import celery
 from celery.app.task import Task
 from django.db import connection
 
@@ -12,11 +13,23 @@ class TenantTask(Task):
         kwds.setdefault('_schema_name', connection.schema_name)
 
     def apply_async(self, args=None, kwargs=None, *arg, **kw):
-        kwargs = kwargs or {}
-        self._add_current_schema(kwargs)
+        if celery.VERSION[0] < 4:
+            kwargs = kwargs or {}
+            self._add_current_schema(kwargs)
+
+        else:
+            # Celery 4.0 introduced strong typing and the `headers` meta dict.
+            self._add_current_schema(kw.setdefault('headers', {}))
+
         return super(TenantTask, self).apply_async(args, kwargs, *arg, **kw)
 
     def apply(self, args=None, kwargs=None, *arg, **kw):
-        kwargs = kwargs or {}
-        self._add_current_schema(kwargs)
+        if celery.VERSION[0] < 4:
+            kwargs = kwargs or {}
+            self._add_current_schema(kwargs)
+
+        else:
+            # Celery 4.0 introduced strong typing and the `headers` meta dict.
+            self._add_current_schema(kw.setdefault('headers', {}))
+
         return super(TenantTask, self).apply(args, kwargs, *arg, **kw)
