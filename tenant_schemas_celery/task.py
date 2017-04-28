@@ -9,8 +9,12 @@ class TenantTask(Task):
     """
     abstract = True
 
+    def _update_headers(self, kw):
+        kw['headers'] = kw.get('headers') or {}
+        self._add_current_schema(kw['headers'])
+
     def _add_current_schema(self, kwds):
-        kwds.setdefault('_schema_name', connection.schema_name)
+        kwds['_schema_name'] = kwds.get('_schema_name', connection.schema_name)
 
     def apply_async(self, args=None, kwargs=None, *arg, **kw):
         if celery.VERSION[0] < 4:
@@ -19,8 +23,7 @@ class TenantTask(Task):
 
         else:
             # Celery 4.0 introduced strong typing and the `headers` meta dict.
-            self._add_current_schema(kw.setdefault('headers', {}))
-
+            self._update_headers(kw)
         return super(TenantTask, self).apply_async(args, kwargs, *arg, **kw)
 
     def apply(self, args=None, kwargs=None, *arg, **kw):
@@ -30,6 +33,5 @@ class TenantTask(Task):
 
         else:
             # Celery 4.0 introduced strong typing and the `headers` meta dict.
-            self._add_current_schema(kw.setdefault('headers', {}))
-
+            self._update_headers(kw)
         return super(TenantTask, self).apply(args, kwargs, *arg, **kw)
