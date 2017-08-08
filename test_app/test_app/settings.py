@@ -137,3 +137,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 BROKER_URL = 'amqp://tenants:tenants@localhost:5672/'
+CELERYBEAT_SCHEDULE = {
+    'test-periodic-task': {
+        'task': 'test_app.tenant.tasks.periodic_print_schema',
+        'schedule': 5.0,
+    },
+}
