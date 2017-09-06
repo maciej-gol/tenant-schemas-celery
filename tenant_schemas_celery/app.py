@@ -6,7 +6,6 @@ try:
 except ImportError:
     raise ImportError("celery is required to use tenant_schemas_celery")
 
-from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 
 from celery.signals import task_prerun, task_postrun
@@ -29,6 +28,7 @@ def switch_schema(task, kwargs, **kw):
     # in turn load modules that need settings to be loaded and we can't
     # guarantee this module was loaded when the settings were ready.
     from .compat import get_public_schema_name, get_tenant_model
+    from django.contrib.contenttypes.models import ContentType
 
     old_schema = (connection.schema_name, connection.include_public_schema)
     setattr(task, '_old_schema', old_schema)
