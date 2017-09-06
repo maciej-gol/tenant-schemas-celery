@@ -6,6 +6,7 @@ try:
 except ImportError:
     raise ImportError("celery is required to use tenant_schemas_celery")
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 
 from celery.signals import task_prerun, task_postrun
@@ -49,6 +50,15 @@ def switch_schema(task, kwargs, **kw):
 
     tenant = get_tenant_model().objects.get(schema_name=schema)
     connection.set_tenant(tenant, include_public=True)
+
+    # Content type can no longer be cached as public and tenant schemas
+    # have different models. If someone wants to change this, the cache
+    # needs to be separated between public and shared schemas. If this
+    # cache isn't cleared, this can cause permission problems. For example,
+    # on public, a particular model has id 14, but on the tenants it has
+    # the id 15. if 14 is cached instead of 15, the permissions for the
+    # wrong model will be fetched.
+    ContentType.objects.clear_cache()
 
 
 def restore_schema(task, **kwargs):
