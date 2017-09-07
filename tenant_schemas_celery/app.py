@@ -28,6 +28,7 @@ def switch_schema(task, kwargs, **kw):
     # in turn load modules that need settings to be loaded and we can't
     # guarantee this module was loaded when the settings were ready.
     from .compat import get_public_schema_name, get_tenant_model
+    from django.contrib.contenttypes.models import ContentType
 
     old_schema = (connection.schema_name, connection.include_public_schema)
     setattr(task, '_old_schema', old_schema)
@@ -49,6 +50,15 @@ def switch_schema(task, kwargs, **kw):
 
     tenant = get_tenant_model().objects.get(schema_name=schema)
     connection.set_tenant(tenant, include_public=True)
+
+    # Content type can no longer be cached as public and tenant schemas
+    # have different models. If someone wants to change this, the cache
+    # needs to be separated between public and shared schemas. If this
+    # cache isn't cleared, this can cause permission problems. For example,
+    # on public, a particular model has id 14, but on the tenants it has
+    # the id 15. if 14 is cached instead of 15, the permissions for the
+    # wrong model will be fetched.
+    ContentType.objects.clear_cache()
 
 
 def restore_schema(task, **kwargs):
