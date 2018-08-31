@@ -1,5 +1,6 @@
-tenant-schemas-celery
+tenant-schemas-celery 
 =====================
+ [![Build Status](https://travis-ci.org/maciej-gol/tenant-schemas-celery.svg?branch=master)](https://travis-ci.org/maciej-gol/tenant-schemas-celery)
 
 Celery application implementation that allows celery tasks to cooperate with
 multi-tenancy provided by [django-tenant-schemas](https://github.com/bernardopires/django-tenant-schemas) and
