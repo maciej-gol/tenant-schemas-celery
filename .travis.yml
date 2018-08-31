@@ -3,7 +3,7 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
-  - "3.7"
+
 env:
   - DJANGO_LT=1.12 CELERY_LT=4.0
   - DJANGO_LT=1.12 CELERY_LT=4.1
