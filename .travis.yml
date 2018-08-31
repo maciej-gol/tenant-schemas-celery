@@ -7,6 +7,8 @@ python:
 env:
   - DJANGO_LT=1.12 CELERY_LT=4.0
   - DJANGO_LT=1.12 CELERY_LT=4.1
+  - DJANGO_LT=1.12 CELERY_LT=4.2
+  - DJANGO_LT=1.12 CELERY_LT=4.3
 
 install:
   - "pip install \"Django<${DJANGO_LT}\" \"celery<${CELERY_LT}\""
