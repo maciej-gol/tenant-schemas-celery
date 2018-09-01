@@ -91,6 +91,9 @@ DATABASES = {
         'NAME': 'tenant_celery',
         'PASSWORD': 'qwe123',
         'USER': 'tenant_celery',
+        'TEST': {
+            'NAME': 'tenant_celery',
+        }
     }
 }
 
