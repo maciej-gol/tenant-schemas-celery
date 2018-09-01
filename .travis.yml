@@ -5,13 +5,14 @@ python:
   - "3.6"
 
 env:
-  - DJANGO_LT=1.12 CELERY_LT=4.0
-  - DJANGO_LT=1.12 CELERY_LT=4.1
-  - DJANGO_LT=1.12 CELERY_LT=4.2
-  - DJANGO_LT=1.12 CELERY_LT=4.3
+  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.0
+  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.1
+  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.2
+  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.3
+  - DJANGO_SPEC= CELERY_SPEC=
 
 install:
-  - "pip install \"Django<${DJANGO_LT}\" \"celery<${CELERY_LT}\""
+  - "pip install \"Django${DJANGO_SPEC}\" \"celery${CELERY_SPEC}\""
   - pip install .
 
 services:
