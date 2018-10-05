@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from test_app.tenant.models import DummyModel
 
 from .test_app import app
