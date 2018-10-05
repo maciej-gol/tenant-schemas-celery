@@ -34,8 +34,6 @@ TENANT_APPS = ['test_app.tenant']
 SHARED_APPS = ['test_app.shared', 'test_app.tenant']
 
 INSTALLED_APPS = [
-    'tenant_schemas',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,6 +45,21 @@ INSTALLED_APPS = [
     'test_app.shared',
     'test_app.tenant',
 ]
+
+try:
+    import tenant_schemas
+    INSTALLED_APPS += ['tenant_schemas']
+
+except ImportError:
+    pass
+
+try:
+    import django_tenants
+    INSTALLED_APPS += ['django_tenants']
+
+except ImportError:
+    pass
+
 
 TENANT_MODEL = 'shared.Client'
 
