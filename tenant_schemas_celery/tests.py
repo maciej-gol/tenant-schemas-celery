@@ -5,11 +5,10 @@ import time
 
 from django.db import connection
 from django.db.models.fields import FieldDoesNotExist
-from tenant_schemas.utils import schema_context, tenant_context
 
 from test_app.shared.models import Client
 from test_app.tenant.models import DummyModel
-from .compat import get_public_schema_name
+from .compat import get_public_schema_name, schema_context, tenant_context
 from .test_tasks import update_task, update_retry_task, DoesNotExist
 
 
