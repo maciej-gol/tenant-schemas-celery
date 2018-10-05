@@ -5,27 +5,27 @@ python:
   - "3.6"
 
 env:
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.0 TENANT_SCHEMAS=django-tenant-schemas<1.9.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.0 TENANT_SCHEMAS=django-tenant-schemas
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.0 TENANT_SCHEMAS=django-tenants<2.1.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.0 TENANT_SCHEMAS=django-tenants
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.1 TENANT_SCHEMAS=django-tenant-schemas<1.9.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.1 TENANT_SCHEMAS=django-tenant-schemas
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.1 TENANT_SCHEMAS=django-tenants<2.1.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.1 TENANT_SCHEMAS=django-tenants
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.2 TENANT_SCHEMAS=django-tenant-schemas<1.9.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.2 TENANT_SCHEMAS=django-tenant-schemas
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.2 TENANT_SCHEMAS=django-tenants<2.1.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.2 TENANT_SCHEMAS=django-tenants
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.2 TENANT_SCHEMAS=django-tenants<2.1.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.3 TENANT_SCHEMAS=django-tenant-schemas<1.9.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.3 TENANT_SCHEMAS=django-tenant-schemas
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.3 TENANT_SCHEMAS=django-tenants<2.1.0
-  - DJANGO_SPEC=<1.12 CELERY_SPEC=<4.3 TENANT_SCHEMAS=django-tenants
-  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS=django-tenant-schemas<1.9.0
-  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS=django-tenant-schemas
-  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS=django-tenants<2.1.0
-  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS=django-tenants
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.0" TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.0" TENANT_SCHEMAS="django-tenant-schemas"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.0" TENANT_SCHEMAS="django-tenants<2.1.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.0" TENANT_SCHEMAS="django-tenants"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.1" TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.1" TENANT_SCHEMAS="django-tenant-schemas"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.1" TENANT_SCHEMAS="django-tenants<2.1.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.1" TENANT_SCHEMAS="django-tenants"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.2" TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.2" TENANT_SCHEMAS="django-tenant-schemas"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.2" TENANT_SCHEMAS="django-tenants<2.1.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.2" TENANT_SCHEMAS="django-tenants"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.2" TENANT_SCHEMAS="django-tenants<2.1.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.3" TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.3" TENANT_SCHEMAS="django-tenant-schemas"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.3" TENANT_SCHEMAS="django-tenants<2.1.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC="<4.3" TENANT_SCHEMAS="django-tenants"
+  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
+  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas"
+  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenants<2.1.0"
+  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
 
 install:
   - "pip install \"Django${DJANGO_SPEC}\" \"celery${CELERY_SPEC}\" \"${TENANT_SCHEMAS}\""
