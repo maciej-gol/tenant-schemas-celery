@@ -1,0 +1,4 @@
+pip-tools>=3.1.0
+pytest>=3.8.2
+pytest-django>=3.4.3
+
