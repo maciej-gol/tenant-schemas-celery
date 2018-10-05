@@ -33,9 +33,29 @@ ALLOWED_HOSTS = []
 TENANT_APPS = ['test_app.tenant']
 SHARED_APPS = ['test_app.shared', 'test_app.tenant']
 
-INSTALLED_APPS = [
-    'tenant_schemas',
+DB_ENGINE = 'tenant_schemas.postgresql_backend'
+DATABASE_ROUTERS = ['tenant_schemas.routers.TenantSyncRouter']
 
+DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
+
+try:
+    import tenant_schemas
+    INSTALLED_APPS = ['tenant_schemas']
+
+except ImportError:
+    pass
+
+try:
+    import django_tenants
+    INSTALLED_APPS = ['django_tenants']
+    DB_ENGINE = 'django_tenants.postgresql_backend'
+    DATABASE_ROUTERS = ['django_tenants.routers.TenantSyncRouter']
+    DEFAULT_FILE_STORAGE = 'django_tenants.storage.TenantFileSystemStorage'
+
+except ImportError:
+    pass
+
+INSTALLED_APPS += [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -86,7 +106,7 @@ WSGI_APPLICATION = 'test_app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'tenant_schemas.postgresql_backend',
+        'ENGINE': DB_ENGINE,
         'HOST': '127.0.0.1',
         'NAME': 'tenant_celery',
         'PASSWORD': 'qwe123',
@@ -96,10 +116,6 @@ DATABASES = {
         }
     }
 }
-
-DATABASE_ROUTERS = ['tenant_schemas.routers.TenantSyncRouter']
-
-DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
