@@ -1,4 +1,3 @@
-from django.db import connection
 from test_app.tenant.models import DummyModel
 
 from .test_app import app
@@ -10,7 +9,6 @@ class DoesNotExist(Exception):
 
 @app.task
 def update_task(model_id, name):
-    print(connection.schema_name)
     try:
         dummy = DummyModel.objects.get(pk=model_id)
 

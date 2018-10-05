@@ -98,7 +98,6 @@ def test_task_retry(setup_tenant_test):
     assert model_count == 1
 
 
-
 def test_restoring_schema_name(setup_tenant_test):
     dummy1 = setup_tenant_test['dummy1']
     dummy2 = setup_tenant_test['dummy2']
