@@ -9,6 +9,7 @@ __pycache__/
 .Python
 app/
 .env/
+env3/
 env/
 bin/
 build/
