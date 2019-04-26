@@ -6,6 +6,8 @@ Celery application implementation that allows celery tasks to cooperate with
 multi-tenancy provided by [django-tenant-schemas](https://github.com/bernardopires/django-tenant-schemas) and
 [django-tenants](https://github.com/tomturner/django-tenants) packages.
 
+This project might not seem frequently updated, but it just has all the functionality needed. Issues and questions are answered quickly.
+
 Installation
 ------------
 
