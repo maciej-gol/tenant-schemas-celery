@@ -7,13 +7,10 @@ python:
 env:
   - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
   - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas"
-  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenants<2.1.0"
   - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
 
 matrix:
   exclude:
-  - python: "2.7"
-    env: DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenants<2.1.0"
   - python: "2.7"
     env: DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
 
