@@ -22,16 +22,16 @@ Usage
    * Define a celery app using given `CeleryApp` class.
 
 ```python
-    import os
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_app.settings')
+   import os
+   os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 
-    from django.conf import settings
+   from django.conf import settings
 
-    from tenant_schemas_celery.app import CeleryApp
+   from tenant_schemas_celery.app import CeleryApp
 
-    app = CeleryApp()
-    app.config_from_object('django.conf:settings')
-    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+   app = CeleryApp()
+   app.config_from_object('django.conf:settings')
+   app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 ```
 
 This assumes a fresh Celery 4.3.0 application. For previous versions, the key is to create a new `CeleryApp` instance that will be used to access task decorator from.
