@@ -4,6 +4,8 @@ python:
   - "3.5"
   - "3.6"
 
+dist: trusty
+
 env:
   - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
   - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas"
