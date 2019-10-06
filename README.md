@@ -44,7 +44,7 @@ This assumes a fresh Celery 4.3.0 application. For previous versions, the key is
 
    @app.task
    def my_task():
-      print connection.schema_name
+      print(connection.schema_name)
 ```
 
    * Run celery worker (`myproject.celery` is where you've defined the `app` variable)
@@ -64,3 +64,29 @@ The `TenantTask` class transparently inserts current connection's schema into
 the task's kwargs. The schema name is then popped from the task's kwargs in
 `task_prerun` signal handler, and the connection's schema is changed
 accordingly.
+
+Celery beat integration
+-----------------------
+
+This package does not provide support for scheduling periodic tasks inside given schema. Instead, you can use `{django_tenants,django_tenants_schemas}.utils.{get_tenant_model,tenant_context}` methods to launch given tasks within specific tenant.
+
+Let's say that you would like to run a `reset_remaining_jobs` tasks periodically, for every tenant that you have. Instead of scheduling the task for each schema separately, you can schedule one dispatcher task that will iterate over all schemas and send specific task for each schema you want, instead:
+
+```python
+from django_tenants.utils import get_tenant_model, tenant_context
+from django_tenant_schemas.utils import get_tenant_model, tenant_context
+
+@app.task
+def reset_remaining_jobs_in_all_schemas():
+    for tenant in get_tenant_model().objects.exclude(schema_name='public'):
+        with tenant_context(tenant):
+            reset_remaining_jobs_in_schema.delay()
+
+@app.task
+def reset_remaining_jobs_in_schema():
+    <do some logic>
+```
+
+The `reset_remaining_jobs_in_all_schemas` task (called the dispatch task) should be registered in your celery beat schedule. The `reset_remaining_jobs_in_schema` task should be called from the dispatch task.
+
+That way you have full control over which schemas the task should be scheduled in.
