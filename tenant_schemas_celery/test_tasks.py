@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from test_app.tenant.models import DummyModel
-
 from .test_app import app
 
 
@@ -28,3 +27,11 @@ def update_retry_task(self, model_id, name):
 
     # Don't throw the Retry exception.
     self.retry(countdown=0.1)
+
+
+CACHE_SECONDS = 1
+
+
+@app.task(tenant_cache_seconds=CACHE_SECONDS)
+def tenant_cache_task() -> None:
+    pass

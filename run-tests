@@ -21,7 +21,7 @@ def main():
     )
     try:
         subprocess.check_call(
-            ["pytest", "../tenant_schemas_celery/tests.py"],
+            ["pytest", "../tenant_schemas_celery"],
             env=new_environ.copy(),
             cwd=cwd,
         )
