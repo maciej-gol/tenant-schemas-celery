@@ -6,7 +6,7 @@ from tenant_schemas_celery.task import TenantTask
 from test_app.shared.models import Client
 
 
-def test_task_get_tenant_for_schema_should_cache_results(transactional_db) -> None:
+def test_task_get_tenant_for_schema_should_cache_results(transactional_db):
     class DummyTask(TenantTask):
         tenant_cache_seconds = 1
 

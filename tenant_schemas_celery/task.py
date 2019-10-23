@@ -3,12 +3,11 @@ from celery.app.task import Task
 from django.db import connection
 
 from tenant_schemas_celery.cache import SimpleCache
-from tenant_schemas_celery.compat import TenantMixin
 
 _shared_storage = {}
 
 
-class SharedTenantCache(SimpleCache[TenantMixin]):
+class SharedTenantCache(SimpleCache):
     def __init__(self):
         super().__init__(storage=_shared_storage)
 
@@ -27,7 +26,7 @@ class TenantTask(Task):
         return SharedTenantCache()
 
     @classmethod
-    def get_tenant_for_schema(cls, schema_name: str) -> TenantMixin:
+    def get_tenant_for_schema(cls, schema_name):
         from .compat import get_tenant_model
 
         missing = object()

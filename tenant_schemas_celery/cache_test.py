@@ -5,7 +5,7 @@ from freezegun import freeze_time
 from tenant_schemas_celery.cache import SimpleCache
 
 
-def test_cache_get_should_return_default_value_if_key_doesnt_exist() -> None:
+def test_cache_get_should_return_default_value_if_key_doesnt_exist():
     cache = SimpleCache()
     expected_value = object()
 
@@ -14,7 +14,7 @@ def test_cache_get_should_return_default_value_if_key_doesnt_exist() -> None:
     assert actual_value is expected_value
 
 
-def test_cache_set_should_add_value_to_cache() -> None:
+def test_cache_set_should_add_value_to_cache():
     cache = SimpleCache()
     expected_value = "stored-value"
 
@@ -24,7 +24,7 @@ def test_cache_set_should_add_value_to_cache() -> None:
     assert actual_value is expected_value
 
 
-def test_cache_get_should_return_default_value_if_key_expired() -> None:
+def test_cache_get_should_return_default_value_if_key_expired():
     expire_seconds = 1
     cache = SimpleCache()
     expected_value = "default-value"
@@ -39,7 +39,7 @@ def test_cache_get_should_return_default_value_if_key_expired() -> None:
     assert actual_value is expected_value
 
 
-def test_cache_should_allow_reusing_storage() -> None:
+def test_cache_should_allow_reusing_storage():
     storage = {}
     cache1 = SimpleCache(storage=storage)
     expected_value = "x"
