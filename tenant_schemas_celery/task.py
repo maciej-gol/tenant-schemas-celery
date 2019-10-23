@@ -22,7 +22,7 @@ class TenantTask(Task):
     tenant_cache_seconds = 0
 
     @classmethod
-    def tenant_cache(cls) -> SharedTenantCache:
+    def tenant_cache(cls):
         return SharedTenantCache()
 
     @classmethod
