@@ -9,7 +9,7 @@ attrs==19.3.0             # via pytest
 click==7.0                # via pip-tools
 freezegun==0.3.12
 importlib-metadata==0.23  # via pluggy, pytest
-more-itertools==7.2.0     # via pytest, zipp
+more-itertools==5.0.0
 packaging==19.2           # via pytest
 pip-tools==4.2.0
 pluggy==0.13.0            # via pytest
@@ -18,6 +18,6 @@ pyparsing==2.4.2          # via packaging
 pytest-django==3.6.0
 pytest==4.6.6
 python-dateutil==2.8.0    # via freezegun
-six==1.12.0               # via freezegun, packaging, pip-tools, pytest, python-dateutil
+six==1.12.0               # via freezegun, more-itertools, packaging, pip-tools, pytest, python-dateutil
 wcwidth==0.1.7            # via pytest
 zipp==0.6.0               # via importlib-metadata
