@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from freezegun import freeze_time
 
 from tenant_schemas_celery.task import TenantTask
-from test_app.shared.models import Client
+from tenant_schemas_celery.test_utils import create_client
 
 
 def test_task_get_tenant_for_schema_should_cache_results(transactional_db):
@@ -14,8 +14,9 @@ def test_task_get_tenant_for_schema_should_cache_results(transactional_db):
             pass
 
     task = DummyTask()
-    fresh_tenant = Client(name='test1', schema_name='test1', domain_url="some-test.example.com")
-    fresh_tenant.save()
+    fresh_tenant = create_client(
+        name="test1", schema_name="test1", domain_url="test1.test.com"
+    )
 
     cached_tenant = task.get_tenant_for_schema("test1")
 
@@ -29,7 +30,9 @@ def test_task_get_tenant_for_schema_should_cache_results(transactional_db):
     assert cache_hit_tenant == cached_tenant
     assert cache_hit_tenant is cached_tenant
 
-    with freeze_time(datetime.utcnow() + 2*timedelta(seconds=DummyTask.tenant_cache_seconds)):
+    with freeze_time(
+        datetime.utcnow() + 2 * timedelta(seconds=DummyTask.tenant_cache_seconds)
+    ):
         cache_miss_tenant = task.get_tenant_for_schema("test1")
 
         # A cache miss. Equality is required, but they are not they same objects.
