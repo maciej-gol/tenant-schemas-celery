@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 
 
-class _CacheEntry:
+class _CacheEntry(object):
     def __init__(self, key, value, expires_at):
         self.key = key
         self.value = value
         self.expires_at = expires_at
 
 
-class SimpleCache:
+class SimpleCache(object):
     def __init__(self, storage=None):
         self.__items = storage if storage is not None else {}
 
