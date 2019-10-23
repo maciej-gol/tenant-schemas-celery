@@ -9,7 +9,7 @@ _shared_storage = {}
 
 class SharedTenantCache(SimpleCache):
     def __init__(self):
-        super(SharedTenantCache).__init__(storage=_shared_storage)
+        super(SharedTenantCache, self).__init__(storage=_shared_storage)
 
 
 class TenantTask(Task):
