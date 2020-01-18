@@ -30,6 +30,7 @@ setup(
     name='tenant-schemas-celery',
     license='MIT',
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url='https://github.com/maciej-gol/tenant-schemas-celery',
     version=version,
 )
