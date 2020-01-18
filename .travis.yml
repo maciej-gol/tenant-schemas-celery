@@ -3,10 +3,8 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
-  - "3.7"
-  - "3.8"
 
-dist: bionic
+dist: trusty
 
 env:
   - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas"
