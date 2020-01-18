@@ -106,3 +106,9 @@ def reset_remaining_jobs_in_schema():
 The `reset_remaining_jobs_in_all_schemas` task (called the dispatch task) should be registered in your celery beat schedule. The `reset_remaining_jobs_in_schema` task should be called from the dispatch task.
 
 That way you have full control over which schemas the task should be scheduled in.
+
+Python compatibility
+====================
+
+The `0.x` series are the last one to support Python<3.6.
+The `1.` series support Python>3.6
