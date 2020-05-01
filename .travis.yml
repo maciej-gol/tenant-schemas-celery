@@ -1,34 +1,15 @@
-language: python
-python:
-  - "3.6"
-
-dist: trusty
+dist: bionic
 
 env:
-  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas"
-  - DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
+  - PYTHON_VERSION=3.6 TENANT_SCHEMAS="django-tenant-schemas"
+  - PYTHON_VERSION=3.7 TENANT_SCHEMAS="django-tenant-schemas"
+  - PYTHON_VERSION=3.8 TENANT_SCHEMAS="django-tenant-schemas"
 
-matrix:
-  exclude:
-  - python: "2.7"
-    env: DJANGO_SPEC= CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
-
-install:
-  - "pip install \"Django${DJANGO_SPEC}\" \"celery${CELERY_SPEC}\" \"${TENANT_SCHEMAS}\""
-  - pip install -r requirements.txt -e .
+  - PYTHON_VERSION=3.6 TENANT_SCHEMAS="django-tenants"
+  - PYTHON_VERSION=3.7 TENANT_SCHEMAS="django-tenants"
+  - PYTHON_VERSION=3.8 TENANT_SCHEMAS="django-tenants"
 
 services:
-  - postgresql
-  - rabbitmq
-
-addons:
-  postgresql: "9.5"
-
-sudo: required
-
-before_script:
-  - psql -c "create user tenant_celery with password 'qwe123'" -U postgres
-  - psql -c "alter role tenant_celery createdb" -U postgres
-  - psql -c "create database tenant_celery with owner tenant_celery" -U postgres
+  - docker
 
 script: "./run-tests"
