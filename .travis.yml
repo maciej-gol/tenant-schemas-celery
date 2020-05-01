@@ -1,20 +1,15 @@
-language: python
-python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-
 dist: bionic
 
 env:
-  - TENANT_SCHEMAS="django-tenant-schemas"
-  - TENANT_SCHEMAS="django-tenants"
+  - PYTHON_VERSION=3.6 TENANT_SCHEMAS="django-tenant-schemas"
+  - PYTHON_VERSION=3.7 TENANT_SCHEMAS="django-tenant-schemas"
+  - PYTHON_VERSION=3.8 TENANT_SCHEMAS="django-tenant-schemas"
 
-install:
-  - "pip install \"Django${DJANGO_SPEC}\" \"celery${CELERY_SPEC}\" \"${TENANT_SCHEMAS}\""
-  - pip install -r requirements.txt -e .
+  - PYTHON_VERSION=3.6 TENANT_SCHEMAS="django-tenants"
+  - PYTHON_VERSION=3.7 TENANT_SCHEMAS="django-tenants"
+  - PYTHON_VERSION=3.8 TENANT_SCHEMAS="django-tenants"
 
 services:
   - docker
 
-script: "PYTHON_VERSION=$(python -c \"import sys; print('{0}.{1}'.format(*sys.version_info))\") ./run-tests"
+script: "./run-tests"
