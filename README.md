@@ -111,4 +111,4 @@ Python compatibility
 ====================
 
 The `0.x` series are the last one to support Python<3.6.
-The `1.` series support Python>3.6
+The `1.` series support Python>=3.6
