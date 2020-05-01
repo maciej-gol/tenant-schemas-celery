@@ -1,6 +1,8 @@
 language: python
 python:
   - "3.6"
+  - "3.7"
+  - "3.8"
 
 dist: bionic
 
@@ -15,4 +17,4 @@ install:
 services:
   - docker
 
-script: "./run-tests"
+script: "PYTHON_VERSION=$(python --version) ./run-tests"
