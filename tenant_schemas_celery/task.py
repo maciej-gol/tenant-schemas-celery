@@ -19,6 +19,8 @@ class TenantTask(Task):
 
     abstract = True
 
+    tenant_cache_seconds = 0
+
     @classmethod
     def tenant_cache(cls):
         return SharedTenantCache()
@@ -30,7 +32,7 @@ class TenantTask(Task):
         missing = object()
         cache = cls.tenant_cache()
         cached_value = cache.get(schema_name, default=missing)
-        tenant_cache_seconds = cls._get_app().conf.task_tenant_cache_seconds or 0
+        tenant_cache_seconds = cls.tenant_cache_seconds or cls._get_app().conf.task_tenant_cache_seconds or 0
 
         if cached_value is missing:
             cached_value = get_tenant_model().objects.get(schema_name=schema_name)
