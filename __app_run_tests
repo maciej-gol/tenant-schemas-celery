@@ -1,14 +1,13 @@
 #!/bin/bash -x
-apt update
-apt install -y libpq-dev iputils-ping
+#apt update
+#apt install -y libpq-dev iputils-ping
 
-pip install -r /app/requirements.txt django ${TENANT_SCHEMAS}
+pip install -r requirements.txt django ${TENANT_SCHEMAS}
 pip install -e .
 
 cd test_app
 export DJANGO_SETTINGS_MODULE=test_app.settings
 
 ./manage.py makemigrations
-celery worker -A tenant_schemas_celery.test_app:app -l INFO &
-pytest ../tenant_schemas_celery
+celery worker -A tenant_schemas_celery.test_app:app -l INFO & pytest ../tenant_schemas_celery
 
