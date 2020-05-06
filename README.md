@@ -74,7 +74,7 @@ For some use cases, this can introduce significant performance hit.
 
 In such scenarios, you can pass `tenant_cache_seconds` argument to the `@app.task()` decorator. This will
 cause the tenant objects to be cached for given period of time. `0` turns this off. You can also enable cache globally
-by setting `CELERY_TASK_TENANT_CACHE_SECONDS`.
+by setting celery's `TASK_TENANT_CACHE_SECONDS` (app-specific, usually it's `CELERY_TASK_TENANT_CACHE_SECONDS`).
 
 ```python
 @app.task(tenant_cache_seconds=30)
