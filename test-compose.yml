@@ -6,9 +6,13 @@ services:
       - POSTGRES_PASSWORD=qwe123
       - POSTGRES_USER=tenant_celery
       - POSTGRES_DB=tenant_celery
+    logging:
+      driver: "none"
 
   rabbitmq:
     image: rabbitmq
+    logging:
+      driver: "none"
 
   app:
     image: "python:${PYTHON_VERSION:-3.6}-slim"
