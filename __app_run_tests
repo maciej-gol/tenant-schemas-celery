@@ -18,6 +18,7 @@ run_silently apt install -y libpq-dev tree
 
 run_silently pip install -r /app/requirements.txt django ${TENANT_SCHEMAS}
 run_silently pip install -e .
+pip freeze
 
 cd test_app
 export DJANGO_SETTINGS_MODULE=test_app.settings
