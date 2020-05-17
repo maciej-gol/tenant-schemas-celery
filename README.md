@@ -27,9 +27,9 @@ Usage
 
    from django.conf import settings
 
-   from tenant_schemas_celery.app import CeleryApp
+   from tenant_schemas_celery.app import CeleryApp as TenantAwareCelery
 
-   app = CeleryApp()
+   app = TenantAwareCelery()
    app.config_from_object('django.conf:settings')
    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 ```
