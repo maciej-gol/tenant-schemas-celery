@@ -35,7 +35,7 @@ class TenantTask(Task):
         tenant_cache_seconds = cls.tenant_cache_seconds
         if tenant_cache_seconds is None: # if not set at task level
             try: # to get from global setting
-                tenant_cache_seconds = cls._get_app().conf.task_tenant_cache_seconds
+                tenant_cache_seconds = int(cls._get_app().conf.task_tenant_cache_seconds)
             except AttributeError:
                 tenant_cache_seconds = 0 # default
 
