@@ -107,7 +107,7 @@ WSGI_APPLICATION = 'test_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': DB_ENGINE,
-        'HOST': '127.0.0.1',
+        'HOST': os.environ.get("DATABASE_HOST", "127.0.0.1"),
         'NAME': 'tenant_celery',
         'PASSWORD': 'qwe123',
         'USER': 'tenant_celery',
@@ -155,7 +155,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-BROKER_URL = 'amqp://tenants:tenants@localhost:5672/'
+CELERY_BROKER_URL = os.environ.get("BROKER_URL", 'amqp://tenants:tenants@localhost:5672/')
 CELERYBEAT_SCHEDULE = {
     'test-periodic-task': {
         'task': 'test_app.tenant.tasks.periodic_print_schema',
