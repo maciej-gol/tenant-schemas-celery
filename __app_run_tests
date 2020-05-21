@@ -1,14 +1,29 @@
-#!/bin/bash -x
-apt update
-apt install -y libpq-dev iputils-ping
+#!/bin/bash -ex
+function run_silently() {
+    set +ex
+    $@ >output.txt 2>&1
+    EXIT_CODE=$?
+    set -e
 
-pip install -r /app/requirements.txt django ${TENANT_SCHEMAS}
-pip install -e .
+    if [ $EXIT_CODE != 0 ]; then
+        echo "Non-zero exit code: $EXIT_CODE"
+        cat output.txt
+        exit $EXIT_CODE
+    fi
+    set -x
+}
+
+run_silently apt update
+run_silently apt install -y libpq-dev tree
+
+run_silently pip install -r /app/requirements.txt django ${TENANT_SCHEMAS}
+run_silently pip install -e .
+pip freeze
 
 cd test_app
 export DJANGO_SETTINGS_MODULE=test_app.settings
 
-./manage.py makemigrations
+rm -rf ./test_app/shared/migrations
+run_silently ./manage.py makemigrations
 celery worker -A tenant_schemas_celery.test_app:app -l INFO &
 pytest ../tenant_schemas_celery
-

@@ -54,16 +54,6 @@ class TenantTask(Task):
     def _add_current_schema(self, kwds):
         kwds["_schema_name"] = kwds.get("_schema_name", connection.schema_name)
 
-    def apply_async(self, args=None, kwargs=None, *arg, **kw):
-        if celery.VERSION[0] < 4:
-            kwargs = kwargs or {}
-            self._add_current_schema(kwargs)
-
-        else:
-            # Celery 4.0 introduced strong typing and the `headers` meta dict.
-            self._update_headers(kw)
-        return super(TenantTask, self).apply_async(args, kwargs, *arg, **kw)
-
     def apply(self, args=None, kwargs=None, *arg, **kw):
         if celery.VERSION[0] < 4:
             kwargs = kwargs or {}
