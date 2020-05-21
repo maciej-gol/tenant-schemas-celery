@@ -162,3 +162,4 @@ CELERYBEAT_SCHEDULE = {
         'schedule': 5.0,
     },
 }
+CELERY_TASK_TENANT_CACHE_SECONDS = os.environ.get("TASK_TENANT_CACHE_SECONDS", 10)
