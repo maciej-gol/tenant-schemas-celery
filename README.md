@@ -27,9 +27,9 @@ Usage
 
    from django.conf import settings
 
-   from tenant_schemas_celery.app import CeleryApp as TenantAwareCeleryApp
+   from tenant_schemas_celery.app import CeleryApp
 
-   app = TenantAwareCeleryApp()
+   app = CeleryApp()
    app.config_from_object('django.conf:settings')
    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 ```
@@ -73,8 +73,7 @@ Every time a celery task is executed, the tenant object of the `connection` obje
 For some use cases, this can introduce significant performance hit.
 
 In such scenarios, you can pass `tenant_cache_seconds` argument to the `@app.task()` decorator. This will
-cause the tenant objects to be cached for given period of time. `0` turns this off. You can also enable cache globally
-by setting `CELERY_TASK_TENANT_CACHE_SECONDS`.
+cause the tenant objects to be cached for given period of time. `0` turns this off.
 
 ```python
 @app.task(tenant_cache_seconds=30)
@@ -112,4 +111,4 @@ Python compatibility
 ====================
 
 The `0.x` series are the last one to support Python<3.6.
-The `1.` series support Python>=3.6
+The `1.` series support Python>3.6

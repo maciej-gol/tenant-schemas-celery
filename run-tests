@@ -1,8 +1,35 @@
-#!/bin/bash
-docker-compose -f test-compose.yml down
+#!/usr/bin/env python
+import subprocess
+import os
 
-docker-compose -f test-compose.yml up --exit-code-from app
-CODE=$?
 
-docker-compose -f test-compose.yml down
-exit $CODE
+def main():
+    new_environ = os.environ.copy()
+    new_environ["DJANGO_SETTINGS_MODULE"] = "test_app.settings"
+    cwd = os.path.abspath(os.path.join(os.path.dirname(__file__), "test_app"))
+
+    subprocess.check_call(
+        ["./manage.py makemigrations"],
+        shell=True,
+        env=new_environ.copy(),
+        cwd=cwd,
+    )
+    celery_proc = subprocess.Popen(
+        ["celery", "worker", "-A", "tenant_schemas_celery.test_app:app", "-l", "INFO"],
+        env=new_environ.copy(),
+        cwd=cwd,
+    )
+    try:
+        subprocess.check_call(
+            ["pytest", "../tenant_schemas_celery"],
+            env=new_environ.copy(),
+            cwd=cwd,
+        )
+
+    finally:
+        celery_proc.terminate()
+        celery_proc.wait()
+
+
+if __name__ == "__main__":
+    main()

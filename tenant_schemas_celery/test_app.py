@@ -1,5 +1,3 @@
-import os
-
 try:
     from .app import CeleryApp
 except ImportError:
@@ -8,7 +6,7 @@ else:
     app = CeleryApp('testapp')
 
     class CeleryConfig:
-        BROKER_URL = os.environ.get("BROKER_URL", "amqp://")
+        BROKER_URL = 'amqp://'
         CELERY_RESULT_BACKEND = 'rpc://'
         CELERY_RESULT_PERSISTENT = False
         CELERY_ALWAYS_EAGER = False
