@@ -19,7 +19,7 @@ class TenantTask(Task):
 
     abstract = True
 
-    tenant_cache_seconds = 0
+    tenant_cache_seconds = None
 
     @classmethod
     def tenant_cache(cls):
@@ -32,11 +32,17 @@ class TenantTask(Task):
         missing = object()
         cache = cls.tenant_cache()
         cached_value = cache.get(schema_name, default=missing)
+        tenant_cache_seconds = cls.tenant_cache_seconds
+        if tenant_cache_seconds is None: # if not set at task level
+            try: # to get from global setting
+                tenant_cache_seconds = int(cls._get_app().conf.task_tenant_cache_seconds)
+            except AttributeError:
+                tenant_cache_seconds = 0 # default
 
         if cached_value is missing:
             cached_value = get_tenant_model().objects.get(schema_name=schema_name)
             cache.set(
-                schema_name, cached_value, expire_seconds=cls.tenant_cache_seconds
+                schema_name, cached_value, expire_seconds=tenant_cache_seconds
             )
 
         return cached_value
