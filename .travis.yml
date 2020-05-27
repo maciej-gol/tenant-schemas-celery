@@ -7,15 +7,15 @@ python:
 dist: trusty
 
 env:
-  - DJANGO_SPEC=<1.12 CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
-  - DJANGO_SPEC=<1.12 CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas"
-  - DJANGO_SPEC=<1.12 CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
-  - DJANGO_SPEC=<1.12 CELERY_SPEC= TENANT_SCHEMAS="django-tenants<2"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas<1.9.0"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC= TENANT_SCHEMAS="django-tenant-schemas"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
+  - DJANGO_SPEC="<1.12" CELERY_SPEC= TENANT_SCHEMAS="django-tenants<2"
 
 matrix:
   exclude:
   - python: "2.7"
-    env: DJANGO_SPEC=<1.12 CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
+    env: DJANGO_SPEC="<1.12" CELERY_SPEC= TENANT_SCHEMAS="django-tenants"
 
 install:
   - "pip install \"Django${DJANGO_SPEC}\" \"celery${CELERY_SPEC}\" \"${TENANT_SCHEMAS}\""
