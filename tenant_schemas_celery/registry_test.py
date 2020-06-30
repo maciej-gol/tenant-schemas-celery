@@ -33,7 +33,6 @@ def test_get_schema_from_class_task_registration(transactional_db):
     task = app._tasks[name]
     assert not inspect.isclass(task)
     assert task.__class__.__name__ == 'get_schema_from_class_task'
-    assert isinstance(task, TenantTask)
     assert isinstance(task, SchemaClassTask)
 
 
