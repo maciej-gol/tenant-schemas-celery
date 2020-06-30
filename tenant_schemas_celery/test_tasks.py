@@ -39,8 +39,14 @@ def get_schema_name():
 
 
 class SchemaClassTask(Task):
-    def run(self):
+    @property
+    def connection_schema_name(self):
         return connection.schema_name
+
+
+@shared_task(base=SchemaClassTask, bind=True)
+def get_schema_from_class_task(self):
+    return self.connection_schema_name
 
 
 class SchemaClassLegacyTask(LegacyTask):
