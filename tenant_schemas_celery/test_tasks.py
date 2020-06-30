@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from celery import shared_task, Task
+from celery.task import Task as LegacyTask
 from django.db import connection
 
 from test_app.tenant.models import DummyModel
@@ -38,5 +39,10 @@ def get_schema_name():
 
 
 class SchemaClassTask(Task):
+    def run(self):
+        return connection.schema_name
+
+
+class SchemaClassLegacyTask(LegacyTask):
     def run(self):
         return connection.schema_name

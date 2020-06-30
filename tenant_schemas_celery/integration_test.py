@@ -8,7 +8,7 @@ from django.db import connection
 from tenant_schemas_celery.test_utils import create_client
 from test_app.tenant.models import DummyModel
 from .compat import get_public_schema_name, schema_context, tenant_context
-from .test_tasks import update_task, update_retry_task, DoesNotExist, get_schema_name, SchemaClassTask
+from .test_tasks import update_task, update_retry_task, DoesNotExist, get_schema_name, SchemaClassTask, SchemaClassLegacyTask
 
 
 @pytest.fixture
@@ -140,5 +140,20 @@ def test_custom_task_class_get_schema_name(setup_tenant_test):
 
     with tenant_context(setup_tenant_test["tenant2"]):
         result = SchemaClassTask.delay().get(timeout=1)
+
+    assert result == setup_tenant_test["tenant2"].schema_name
+
+
+def test_custom_legacy_task_class_get_schema_name(setup_tenant_test):
+    result = SchemaClassLegacyTask.delay().get(timeout=1)
+    assert result == get_public_schema_name()
+    
+    with tenant_context(setup_tenant_test["tenant1"]):
+        result = SchemaClassLegacyTask.delay().get(timeout=1)
+
+    assert result == setup_tenant_test["tenant1"].schema_name
+
+    with tenant_context(setup_tenant_test["tenant2"]):
+        result = SchemaClassLegacyTask.delay().get(timeout=1)
 
     assert result == setup_tenant_test["tenant2"].schema_name
