@@ -8,7 +8,7 @@ from django.db import connection
 from tenant_schemas_celery.test_utils import create_client
 from test_app.tenant.models import DummyModel
 from .compat import get_public_schema_name, schema_context, tenant_context
-from .test_tasks import update_task, update_retry_task, DoesNotExist
+from .test_tasks import update_task, update_retry_task, DoesNotExist, get_schema_name, JobtasticSchemaTask
 
 
 @pytest.fixture
@@ -110,5 +110,35 @@ def test_restoring_schema_name(setup_tenant_test):
     with pytest.raises(DoesNotExist):
         with schema_context(get_public_schema_name()):
             update_task.apply_async(args=(dummy2.pk, "updated-name")).get()
+
+    assert connection.schema_name == setup_tenant_test["tenant2"].schema_name
+
+
+def test_shared_task_get_schema_name(setup_tenant_test):
+    result = get_schema_name.delay().get(timeout=30)
+    assert result == get_public_schema_name()
+    
+    with tenant_context(setup_tenant_test["tenant1"]):
+        result = get_schema_name.delay().get(timeout=30)
+
+    assert connection.schema_name == setup_tenant_test["tenant1"].schema_name
+
+    with tenant_context(setup_tenant_test["tenant2"]):
+        result = get_schema_name.delay().get(timeout=30)
+
+    assert connection.schema_name == setup_tenant_test["tenant2"].schema_name
+
+
+def test_custom_task_class_get_schema_name(setup_tenant_test):
+    result = JobtasticSchemaTask.delay().get(timeout=30)
+    assert result == get_public_schema_name()
+    
+    with tenant_context(setup_tenant_test["tenant1"]):
+        result = JobtasticSchemaTask.delay().get(timeout=30)
+
+    assert connection.schema_name == setup_tenant_test["tenant1"].schema_name
+
+    with tenant_context(setup_tenant_test["tenant2"]):
+        result = JobtasticSchemaTask.delay().get(timeout=30)
 
     assert connection.schema_name == setup_tenant_test["tenant2"].schema_name
