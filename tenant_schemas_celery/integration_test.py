@@ -121,12 +121,12 @@ def test_shared_task_get_schema_name(setup_tenant_test):
     with tenant_context(setup_tenant_test["tenant1"]):
         result = get_schema_name.delay().get(timeout=30)
 
-    assert connection.schema_name == setup_tenant_test["tenant1"].schema_name
+    assert result == setup_tenant_test["tenant1"].schema_name
 
     with tenant_context(setup_tenant_test["tenant2"]):
         result = get_schema_name.delay().get(timeout=30)
 
-    assert connection.schema_name == setup_tenant_test["tenant2"].schema_name
+    assert result == setup_tenant_test["tenant2"].schema_name
 
 
 def test_custom_task_class_get_schema_name(setup_tenant_test):
@@ -136,9 +136,9 @@ def test_custom_task_class_get_schema_name(setup_tenant_test):
     with tenant_context(setup_tenant_test["tenant1"]):
         result = JobtasticSchemaTask.delay().get(timeout=30)
 
-    assert connection.schema_name == setup_tenant_test["tenant1"].schema_name
+    assert result == setup_tenant_test["tenant1"].schema_name
 
     with tenant_context(setup_tenant_test["tenant2"]):
         result = JobtasticSchemaTask.delay().get(timeout=30)
 
-    assert connection.schema_name == setup_tenant_test["tenant2"].schema_name
+    assert result == setup_tenant_test["tenant2"].schema_name
