@@ -14,7 +14,7 @@ function run_silently() {
 }
 
 run_silently apt update
-run_silently apt install -y libpq-dev tree
+run_silently apt install -y libpq-dev tree build-essential
 
 run_silently pip install -r /app/requirements.txt django ${TENANT_SCHEMAS}
 run_silently pip install -e .
