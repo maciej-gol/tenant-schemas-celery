@@ -4,4 +4,3 @@ pytest-django>=3.4.3
 freezegun
 more-itertools<6
 psycopg2-binary
-jobtastic
