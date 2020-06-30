@@ -44,7 +44,7 @@ class SchemaClassTask(Task):
         return connection.schema_name
 
 
-@app.task(base=SchemaClassTask, bind=True)
+@shared_task(base=SchemaClassTask, bind=True)
 def get_schema_from_class_task(self):
     return self.connection_schema_name
 
