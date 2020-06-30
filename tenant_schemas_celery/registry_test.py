@@ -39,7 +39,6 @@ def test_get_schema_from_class_task_registration(transactional_db):
 
 def test_schema_class_legacy_task_registration(transactional_db):
     assert issubclass(SchemaClassLegacyTask, LegacyTask)
-    assert not issubclass(SchemaClassLegacyTask, Task)
     
     name = 'tenant_schemas_celery.test_tasks.SchemaClassLegacyTask'
     assert name in app._tasks
