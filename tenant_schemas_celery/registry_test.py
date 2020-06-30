@@ -11,9 +11,6 @@ def test_get_schema_name_registration(transactional_db):
     app = CeleryApp('testapp')
     app.config_from_object('django.conf:settings', namespace="CELERY")
     
-    assert inspect.isclass(get_schema_name)
-    assert not issubclass(get_schema_name, TenantTask)
-    
     name = 'tenant_schemas_celery.test_tasks.get_schema_name'
     assert name in app._tasks
     
