@@ -45,6 +45,6 @@ def test_schema_class_legacy_task_registration(transactional_db):
     
     task = app._tasks[name]
     assert not inspect.isclass(task)
-    assert task.__class__.__name__ == 'SchemaClassLegacyTask'
+    assert task.__class__.__name__ == 'DynamicTenantTask'
     assert isinstance(task, TenantTask)
     assert isinstance(task, SchemaClassLegacyTask)
