@@ -46,6 +46,9 @@ class SchemaClassTask(Task):
 
 @shared_task(base=SchemaClassTask, bind=True)
 def get_schema_from_class_task(self):
+    '''
+        NOTICE: decorator tasks using a custom base like this are not supported
+    '''
     return self.connection_schema_name
 
 
