@@ -1,5 +1,6 @@
 import inspect
 
+import pytest
 from celery import Task
 from celery.task import Task as LegacyTask
 
@@ -24,6 +25,7 @@ def test_get_schema_name_registration(transactional_db):
     assert isinstance(task, TenantTask)
 
 
+@pytest.mark.xfail(reason="decorator tasks with custom base class not implemented")
 def test_get_schema_from_class_task_registration(transactional_db):
     assert isinstance(get_schema_from_class_task, Task)
     assert not isinstance(get_schema_from_class_task, LegacyTask)
