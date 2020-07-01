@@ -15,6 +15,7 @@ def test_get_schema_name_registration(transactional_db):
     assert not isinstance(get_schema_name, LegacyTask)
     
     name = 'tenant_schemas_celery.test_tasks.get_schema_name'
+    assert name == get_schema_name.name
     assert name in app._tasks
     
     task = app._tasks[name]
@@ -28,6 +29,7 @@ def test_get_schema_from_class_task_registration(transactional_db):
     assert not isinstance(get_schema_from_class_task, LegacyTask)
     
     name = 'tenant_schemas_celery.test_tasks.get_schema_from_class_task'
+    assert name == get_schema_from_class_task.name
     assert name in app._tasks
     
     task = app._tasks[name]
@@ -41,6 +43,7 @@ def test_schema_class_legacy_task_registration(transactional_db):
     assert issubclass(SchemaClassLegacyTask, LegacyTask)
     
     name = 'tenant_schemas_celery.test_tasks.SchemaClassLegacyTask'
+    assert name == SchemaClassLegacyTask.name
     assert name in app._tasks
     
     task = app._tasks[name]
