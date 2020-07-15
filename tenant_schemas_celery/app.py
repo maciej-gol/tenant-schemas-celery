@@ -75,6 +75,8 @@ task_postrun.connect(
 
 
 class CeleryApp(Celery):
+    registry_cls = 'tenant_schemas_celery.registry:TenantTaskRegistry'
+    
     def create_task_cls(self):
         return self.subclass_with_self(
             "tenant_schemas_celery.task:TenantTask",
