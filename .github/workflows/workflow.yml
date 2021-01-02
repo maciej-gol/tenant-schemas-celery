@@ -13,10 +13,13 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.6', '3.7', '3.8', '3.9']
-
+        tenants-app: ['django-tenant-schemas', 'django-tenants']
+        celery-backend: ['librabbitmq', 'redis']
+        celery-version: ['<5', '']
     steps:
     - uses: actions/checkout@v2
     - name: Run tests
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
+        ADDITIONAL_REQUIREMENTS: ${{ matrix.tenants-app }} celery[${{ matrix.celery-backend }}${{ matrix.celery-version }}]
       run: ./run-tests
