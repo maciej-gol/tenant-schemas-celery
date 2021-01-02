@@ -1,10 +1,9 @@
 from __future__ import absolute_import
 
 from celery import shared_task, Task
-from celery.task import Task as LegacyTask
 from django.db import connection
-
 from test_app.tenant.models import DummyModel
+
 from .test_app import app
 
 
@@ -50,8 +49,3 @@ def get_schema_from_class_task(self):
         NOTICE: decorator tasks using a custom base like this are not supported
     '''
     return self.connection_schema_name
-
-
-class SchemaClassLegacyTask(LegacyTask):
-    def run(self):
-        return connection.schema_name
