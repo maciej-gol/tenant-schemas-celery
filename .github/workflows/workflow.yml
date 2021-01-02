@@ -13,7 +13,8 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.6', '3.7', '3.8', '3.9']
-        tenants-app: ['django-tenant-schemas', 'django-tenants']
+        tenants-app:
+          - django-tenants
         celery: ['celery<5', 'celery']
         broker-url:
           - redis://redis:6379/0
