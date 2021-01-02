@@ -16,6 +16,8 @@ jobs:
         tenants-app: ['django-tenant-schemas', 'django-tenants']
         celery-backend: ['librabbitmq', 'redis']
         celery-version: ['<5', '']
+      fail-fast: false
+
     steps:
     - uses: actions/checkout@v2
     - name: Run tests
