@@ -18,6 +18,7 @@ services:
     image: redis
     logging:
       driver: "none"
+
   app:
     image: "python:${PYTHON_VERSION:-3.6}-slim"
     depends_on:
@@ -25,9 +26,8 @@ services:
       - redis
     environment:
       - DATABASE_HOST=postgres
-      - BROKER_URL=redis://redis:6379/0
-#      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
-      - ADDITIONAL_REQUIREMENTS=${TENANT_SCHEMAS:-django-tenants} ${ADDITIONAL_REQUIREMENTS}
+      - BROKER_URL=${BROKER_URL:-amqp://guest:guest@rabbitmq:5672/}
+      - ADDITIONAL_REQUIREMENTS=${ADDITIONAL_REQUIREMENTS}
       - TASK_TENANT_CACHE_SECONDS=10
 
     volumes:
