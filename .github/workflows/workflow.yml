@@ -1,0 +1,30 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.6', '3.7', '3.8', '3.9']
+        tenants-app: ['django-tenant-schemas', 'django-tenants']
+        celery: ['celery<5', 'celery']
+        broker-url:
+          - redis://redis:6379/0
+          - amqp://guest:guest@rabbitmq:5672/
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run tests
+      env:
+        PYTHON_VERSION: ${{ matrix.python-version }}
+        ADDITIONAL_REQUIREMENTS: ${{ matrix.tenants-app }} redis ${{ matrix.celery }}
+        BROKER_URL: ${{ matrix.broker-url }}
+      run: ./run-tests
