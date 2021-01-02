@@ -4,21 +4,42 @@
 #
 #    pip-compile requirements.in
 #
-atomicwrites==1.3.0       # via pytest
-attrs==19.3.0             # via pytest
-click==7.0                # via pip-tools
-freezegun==0.3.12
-importlib-metadata==0.23  # via pluggy, pytest
+attrs==20.3.0
+    # via pytest
+click==7.1.2
+    # via pip-tools
+freezegun==1.0.0
+    # via -r requirements.in
+iniconfig==1.1.1
+    # via pytest
 more-itertools==5.0.0
-packaging==19.2           # via pytest
-pip-tools==4.2.0
-pluggy==0.13.0            # via pytest
-psycopg2-binary==2.8.4
-py==1.8.0                 # via pytest
-pyparsing==2.4.2          # via packaging
-pytest-django==3.6.0
-pytest==4.6.6
-python-dateutil==2.8.0    # via freezegun
-six==1.12.0               # via freezegun, more-itertools, packaging, pip-tools, pytest, python-dateutil
-wcwidth==0.1.7            # via pytest
-zipp==0.6.0               # via importlib-metadata
+    # via -r requirements.in
+packaging==20.8
+    # via pytest
+pip-tools==5.5.0
+    # via -r requirements.in
+pluggy==0.13.1
+    # via pytest
+psycopg2-binary==2.8.6
+    # via -r requirements.in
+py==1.10.0
+    # via pytest
+pyparsing==2.4.7
+    # via packaging
+pytest-django==4.1.0
+    # via -r requirements.in
+pytest==6.2.1
+    # via
+    #   -r requirements.in
+    #   pytest-django
+python-dateutil==2.8.1
+    # via freezegun
+six==1.15.0
+    # via
+    #   more-itertools
+    #   python-dateutil
+toml==0.10.2
+    # via pytest
+
+# The following packages are considered to be unsafe in a requirements file:
+# pip
