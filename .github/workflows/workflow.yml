@@ -21,5 +21,5 @@ jobs:
     - name: Run tests
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
-        ADDITIONAL_REQUIREMENTS: ${{ matrix.tenants-app }} celery[${{ matrix.celery-backend }}${{ matrix.celery-version }}]
+        ADDITIONAL_REQUIREMENTS: ${{ matrix.tenants-app }} celery[${{ matrix.celery-backend }}]${{ matrix.celery-version }}]
       run: ./run-tests
