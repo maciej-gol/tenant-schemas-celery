@@ -25,5 +25,5 @@ export DJANGO_SETTINGS_MODULE=test_app.settings
 
 rm -rf ./test_app/shared/migrations
 run_silently ./manage.py makemigrations
-celery worker -A tenant_schemas_celery.test_app:app -l INFO &
+celery -A tenant_schemas_celery.test_app:app worker -l INFO &
 pytest ../tenant_schemas_celery
