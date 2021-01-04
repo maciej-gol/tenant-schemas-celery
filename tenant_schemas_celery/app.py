@@ -18,8 +18,9 @@ def get_schema_name_from_task(task, kwargs):
         return kwargs.pop("_schema_name", None)
 
     # In some cases (like Redis broker) headers are merged with `task.request`.
-    task_headers = task.request.headers or task.request
-    return task_headers.get("_schema_name")
+    if task.request.headers and "_schema_name" in task.request.headers:
+        return task.request.headers.get("_schema_name")
+    return task.request.get("_schema_name")
 
 
 def switch_schema(task, kwargs, **kw):
