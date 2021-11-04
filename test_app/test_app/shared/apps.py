@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class AppConfig(AppConfig):
-    name = 'shared'
+    name = 'test_app.shared'

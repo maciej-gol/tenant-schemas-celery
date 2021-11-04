@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class TenantConfig(AppConfig):
-    name = 'tenant'
+    name = 'test_app.tenant'
