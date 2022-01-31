@@ -6,7 +6,7 @@ try:
 except ImportError:
     raise ImportError("celery is required to use tenant_schemas_celery")
 
-from django.db import connection
+from django.db import connection, connections
 
 from celery.signals import task_prerun, task_postrun
 
@@ -40,13 +40,15 @@ def switch_schema(task, kwargs, **kw):
         return
 
     if connection.schema_name != get_public_schema_name():
-        connection.set_schema_to_public()
+        for conn in connections.all():
+            conn.set_schema_to_public()
 
     if schema == get_public_schema_name():
         return
 
     tenant = task.get_tenant_for_schema(schema_name=schema)
-    connection.set_tenant(tenant, include_public=True)
+    for conn in connections.all():
+        conn.set_tenant(tenant, include_public=True)
 
 
 def restore_schema(task, **kwargs):
@@ -63,7 +65,8 @@ def restore_schema(task, **kwargs):
     if connection.schema_name == schema_name:
         return
 
-    connection.set_schema(schema_name, include_public=include_public)
+    for conn in connections.all():
+        conn.set_schema(schema_name, include_public=include_public)
 
 
 task_prerun.connect(
