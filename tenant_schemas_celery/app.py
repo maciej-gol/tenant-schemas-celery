@@ -39,16 +39,18 @@ def switch_schema(task, kwargs, **kw):
     if connection.schema_name == schema:
         return
 
+    tenant_databases = task.get_tenant_databases()
+
     if connection.schema_name != get_public_schema_name():
-        for conn in connections.all():
-            conn.set_schema_to_public()
+        for db_name in tenant_databases:
+            connections[db_name].set_schema_to_public()
 
     if schema == get_public_schema_name():
         return
 
     tenant = task.get_tenant_for_schema(schema_name=schema)
-    for conn in connections.all():
-        conn.set_tenant(tenant, include_public=True)
+    for db_name in tenant_databases:
+        connections[db_name].set_tenant(tenant, include_public=True)
 
 
 def restore_schema(task, **kwargs):
@@ -65,8 +67,8 @@ def restore_schema(task, **kwargs):
     if connection.schema_name == schema_name:
         return
 
-    for conn in connections.all():
-        conn.set_schema(schema_name, include_public=include_public)
+    for db_name in task.get_tenant_databases():
+        connections[db_name].set_schema(schema_name, include_public=include_public)
 
 
 task_prerun.connect(

@@ -1,9 +1,10 @@
 from __future__ import absolute_import
 
 from celery import shared_task, Task
-from django.db import connection
+from django.db import connection, connections
 from test_app.tenant.models import DummyModel
 
+from .task import TenantTask
 from .test_app import app
 
 
@@ -49,3 +50,16 @@ def get_schema_from_class_task(self):
         NOTICE: decorator tasks using a custom base like this are not supported
     '''
     return self.connection_schema_name
+
+
+class MultipleDbTask(TenantTask):
+    tenant_databases = ("otherdb1", "otherdb2")
+
+
+@shared_task(base=MultipleDbTask)
+def multiple_db_task():
+    """
+    Ensure during the task's execution the schema is changed
+    for the two given databases
+    """
+    return {name: connections[name].schema_name for name in connections}

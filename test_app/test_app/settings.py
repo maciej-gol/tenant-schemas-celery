@@ -114,7 +114,27 @@ DATABASES = {
         'TEST': {
             'NAME': 'tenant_celery',
         }
-    }
+    },
+    'otherdb1': {
+        'ENGINE': DB_ENGINE,
+        'HOST': os.environ.get("DATABASE_HOST", "127.0.0.1"),
+        'NAME': 'tenant_celery',
+        'PASSWORD': 'qwe123',
+        'USER': 'tenant_celery',
+        'TEST': {
+            'NAME': 'tenant_celery',
+        }
+    },
+    'otherdb2': {
+        'ENGINE': DB_ENGINE,
+        'HOST': os.environ.get("DATABASE_HOST", "127.0.0.1"),
+        'NAME': 'tenant_celery',
+        'PASSWORD': 'qwe123',
+        'USER': 'tenant_celery',
+        'TEST': {
+            'NAME': 'tenant_celery',
+        }
+    },
 }
 
 # Password validation
