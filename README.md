@@ -64,6 +64,18 @@ the task's kwargs. The schema name is then popped from the task's kwargs in
 `task_prerun` signal handler, and the connection's schema is changed
 accordingly.
 
+### Multiple databases support
+
+New in `2.0.0`.
+
+Inside your celery tasks you might be working with multiple databases. You might want to change the schema for
+all of the connections, or just a subset of them.
+
+You can now use the `CELERY_TASK_TENANT_CACHE_SECONDS` django setting, or `TASK_TENANT_CACHE_SECONDS` celery setting, or
+the `tenant_databases` attribute of the `TenantTask` to a list of database names (the key in the `settings.DATABASES` dictionary).
+
+If not set, the settings defaults to `["default"]`.
+
 ### Tenant objects cache
 
 New in `0.3.0`.
@@ -110,5 +122,6 @@ That way you have full control over which schemas the task should be scheduled i
 Python compatibility
 ====================
 
+The `2.x` series support Python>=3.7.
+The `1.x` series support Python>=3.6. Python 3.6 reached EOL 2021-12.
 The `0.x` series are the last one to support Python<3.6.
-The `1.` series support Python>=3.6
