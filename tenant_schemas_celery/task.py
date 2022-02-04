@@ -20,6 +20,16 @@ class TenantTask(Task):
     abstract = True
 
     tenant_cache_seconds = None
+    tenant_databases = None
+
+    @classmethod
+    def get_tenant_databases(cls):
+        """Return the databases where the schema should be switched"""
+        if cls.tenant_databases is not None:
+            return cls.tenant_databases
+        if hasattr(cls.app.conf, "task_tenant_databases") is True:
+            return cls.app.conf.task_tenant_databases
+        return ("default", )
 
     @classmethod
     def tenant_cache(cls):

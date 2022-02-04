@@ -3,12 +3,19 @@ from __future__ import absolute_import
 import time
 
 import pytest
-from django.db import connection
+from django.db import connection, connections
 from test_app.tenant.models import DummyModel
 
 from tenant_schemas_celery.test_utils import create_client
 from .compat import get_public_schema_name, schema_context, tenant_context
-from .test_tasks import update_task, update_retry_task, DoesNotExist, get_schema_name, get_schema_from_class_task
+from .test_tasks import (
+    update_task,
+    update_retry_task,
+    DoesNotExist,
+    get_schema_name,
+    get_schema_from_class_task,
+    multiple_db_task,
+)
 
 
 @pytest.fixture
@@ -143,3 +150,24 @@ def test_custom_task_class_get_schema_name(setup_tenant_test):
         result = get_schema_from_class_task.delay().get(timeout=1)
 
     assert result == setup_tenant_test["tenant2"].schema_name
+
+
+def test_use_multiple_databases(setup_tenant_test):
+    """
+    Test the case where a setting to have multiple database search path to be changed
+    was put for a task
+    """
+    with tenant_context(setup_tenant_test["tenant1"]):
+        result = multiple_db_task.delay().get(timeout=1)
+
+        # Ensure restore_schema switched back to public
+        assert connections["otherdb1"].schema_name == "public"
+        assert connections["otherdb2"].schema_name == "public"
+
+    # The task should have had the two configured DBs with tenant search path
+    # the other db should be untouched
+    assert result == {
+        "default": "public",  # should be unchanged
+        "otherdb1": setup_tenant_test["tenant1"].schema_name,
+        "otherdb2": setup_tenant_test["tenant1"].schema_name,
+    }

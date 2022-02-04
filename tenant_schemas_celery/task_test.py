@@ -127,3 +127,21 @@ def test_multiple_tasks_get_tenant_for_schema_should_cache_results_global_settin
         # Cache miss for same tenant, different task
         assert cache_miss_tenant2 == cached_tenant
         assert cache_miss_tenant2 is not cached_tenant
+
+
+def test_get_tenant_databases_custom_settings(celery_conf):
+    """Tests the behavior when using custom settings in Django/Celery"""
+
+    # When no configuration, should fallback to default behavior
+    assert hasattr(celery_conf, "task_tenant_databases") is False
+    assert TenantTask.get_tenant_databases() == ("default", )
+
+    # Custom setting via settings.py or celery conf
+    celery_conf["CELERY_TASK_TENANT_DATABASES"] = ("otherdb1", "otherdb2")
+    assert TenantTask.get_tenant_databases() == ("otherdb1", "otherdb2")
+
+    class CustomTask(TenantTask):
+        tenant_databases = ("customdb",)
+
+    # Should prioritize the task class's preference over Celery app config
+    assert CustomTask.get_tenant_databases() == ("customdb",)
