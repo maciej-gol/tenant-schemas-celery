@@ -114,6 +114,13 @@ def reset_remaining_jobs_in_all_schemas():
 def reset_remaining_jobs_in_schema():
     <do some logic>
 ```
+SPECIAL NOTE:
+While celery uses the default : CELERY_BEAT_SCHEDULE for its periodic tasks in settings.py
+using this project in your django project:
+CELERYBEAT_SCHEDULE is required for celery beat to work
+---- celery -A <app_name> worker -B -l info 
+should work perfectly with the settings
+
 
 The `reset_remaining_jobs_in_all_schemas` task (called the dispatch task) should be registered in your celery beat schedule. The `reset_remaining_jobs_in_schema` task should be called from the dispatch task.
 
