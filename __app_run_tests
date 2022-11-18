@@ -17,7 +17,7 @@ run_silently apt update
 run_silently apt install -y libpq-dev tree
 
 run_silently pip install -r /app/requirements.txt django ${ADDITIONAL_REQUIREMENTS}
-run_silently pip install -e .
+run_silently pip install -e . 'importlib-metadata<5'
 pip freeze
 
 cd test_app

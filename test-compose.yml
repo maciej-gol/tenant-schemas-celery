@@ -20,7 +20,7 @@ services:
       driver: "none"
 
   app:
-    image: "python:${PYTHON_VERSION:-3.6}-slim"
+    image: "python:${PYTHON_VERSION:-3.7}-slim"
     depends_on:
       - postgres
       - redis
