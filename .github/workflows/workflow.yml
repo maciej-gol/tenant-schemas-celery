@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
         tenants-app:
           - django-tenants
         celery: ['celery']
@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Run tests
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
