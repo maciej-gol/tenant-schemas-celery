@@ -33,17 +33,22 @@ Usage
    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 ```
 
-This assumes a fresh Celery 4.3.0 application. For previous versions, the key is to create a new `CeleryApp` instance that will be used to access task decorator from.
+This assumes a fresh Celery 5.2.0 application. For previous versions, the key is to create a new `CeleryApp` instance that will be used to access task decorator from.
 
    * Replace your `@task` decorator with `@app.task`
 
 ```python
+   from celery import shared_task
    from django.db import connection
    from myproject.celery import app
 
    @app.task
    def my_task():
       print(connection.schema_name)
+
+   @shared_task(base=TenantTask, bind=True)
+   def my_shared_task():
+      print("foo")
 ```
 
    * Run celery worker (`myproject.celery` is where you've defined the `app` variable)
@@ -119,9 +124,14 @@ The `reset_remaining_jobs_in_all_schemas` task (called the dispatch task) should
 
 That way you have full control over which schemas the task should be scheduled in.
 
-Python compatibility
-====================
+Compatibility changes
+=====================
+
+The `>=2.1` series drop support for `tenant-schemas`. It hasn't been maintainted for
+a long time.
 
 The `2.x` series support Python>=3.7.
+
 The `1.x` series support Python>=3.6. Python 3.6 reached EOL 2021-12.
+
 The `0.x` series are the last one to support Python<3.6.

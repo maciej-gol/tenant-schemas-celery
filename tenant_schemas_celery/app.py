@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 try:
-    import celery
     from celery import Celery
 except ImportError:
     raise ImportError("celery is required to use tenant_schemas_celery")
@@ -12,11 +11,6 @@ from celery.signals import task_prerun, task_postrun
 
 
 def get_schema_name_from_task(task, kwargs):
-    if celery.VERSION[0] < 4:
-        # Pop it from the kwargs since tasks don't except the additional kwarg.
-        # This change is transparent to the system.
-        return kwargs.pop("_schema_name", None)
-
     # In some cases (like Redis broker) headers are merged with `task.request`.
     if task.request.headers and "_schema_name" in task.request.headers:
         return task.request.headers.get("_schema_name")
@@ -99,11 +93,5 @@ class CeleryApp(Celery):
         kwds["_schema_name"] = kwds.get("_schema_name", connection.schema_name)
 
     def send_task(self, name, args=None, kwargs=None, **options):
-        if celery.VERSION[0] < 4:
-            kwargs = kwargs or {}
-            self._add_current_schema(kwargs)
-
-        else:
-            # Celery 4.0 introduced strong typing and the `headers` meta dict.
-            self._update_headers(options)
+        self._update_headers(options)
         return super(CeleryApp, self).send_task(name, args=args, kwargs=kwargs, **options)
