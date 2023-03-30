@@ -13,5 +13,12 @@ else:
         CELERY_RESULT_PERSISTENT = False
         CELERY_ALWAYS_EAGER = False
 
+        CELERYBEAT_SCHEDULE = {
+            'test-periodic-task': {
+                'task': 'tenant_schemas_celery.test_tasks.periodic_print_schema',
+                'schedule': 4.0,
+            },
+        }
+
     app.config_from_object(CeleryConfig)
     app.autodiscover_tasks(['tenant_schemas_celery'], 'test_tasks')

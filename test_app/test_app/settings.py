@@ -33,27 +33,11 @@ ALLOWED_HOSTS = []
 TENANT_APPS = ['test_app.tenant']
 SHARED_APPS = ['test_app.shared', 'test_app.tenant']
 
-DB_ENGINE = 'tenant_schemas.postgresql_backend'
-DATABASE_ROUTERS = ['tenant_schemas.routers.TenantSyncRouter']
+INSTALLED_APPS = ['django_tenants']
+DB_ENGINE = 'django_tenants.postgresql_backend'
+DATABASE_ROUTERS = ['django_tenants.routers.TenantSyncRouter']
+DEFAULT_FILE_STORAGE = 'django_tenants.storage.TenantFileSystemStorage'
 
-DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
-
-try:
-    import tenant_schemas
-    INSTALLED_APPS = ['tenant_schemas']
-
-except ImportError:
-    pass
-
-try:
-    import django_tenants
-    INSTALLED_APPS = ['django_tenants']
-    DB_ENGINE = 'django_tenants.postgresql_backend'
-    DATABASE_ROUTERS = ['django_tenants.routers.TenantSyncRouter']
-    DEFAULT_FILE_STORAGE = 'django_tenants.storage.TenantFileSystemStorage'
-
-except ImportError:
-    pass
 
 INSTALLED_APPS += [
     'django.contrib.admin',
@@ -69,6 +53,7 @@ INSTALLED_APPS += [
 ]
 
 TENANT_MODEL = 'shared.Client'
+TENANT_DOMAIN_MODEL = 'shared.Domain'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
