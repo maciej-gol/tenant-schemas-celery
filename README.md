@@ -101,9 +101,14 @@ def some_task():
 Celery beat integration
 -----------------------
 
-This package does not provide support for scheduling periodic tasks inside given schema. Instead, you can use `{django_tenants,django_tenants_schemas}.utils.{get_tenant_model,tenant_context}` methods to launch given tasks within specific tenant.
+In order to run celery beat tasks in a multi-tenant environment, you've got two options:
+- Use a dispatching task that will send a task for each tenant
+- Use a custom scheduler
 
-Let's say that you would like to run a `reset_remaining_jobs` tasks periodically, for every tenant that you have. Instead of scheduling the task for each schema separately, you can schedule one dispatcher task that will iterate over all schemas and send specific task for each schema you want, instead:
+i.e: Let's say that you would like to run a `reset_remaining_jobs` tasks periodically, for every tenant that you have.
+
+### Dispatcher task pattern
+You can schedule one dispatcher task that will iterate over all schemas and send that task within the schema's context:
 
 ```python
 from django_tenants.utils import get_tenant_model, tenant_context
@@ -123,6 +128,27 @@ def reset_remaining_jobs_in_schema():
 The `reset_remaining_jobs_in_all_schemas` task (called the dispatch task) should be registered in your celery beat schedule. The `reset_remaining_jobs_in_schema` task should be called from the dispatch task.
 
 That way you have full control over which schemas the task should be scheduled in.
+
+
+### Custom scheduler
+You are using the standard `Scheduler` or `PersistentScheduler` classes provided by `celery`, you can transition to using this package's `TenantAwareScheduler` or `TenantAwarePersistentScheduler` classes. You should then specify the scheduler you want to use in your invocation to `beat`. i.e:
+
+```bash
+celery -A proj beat --scheduler=tenant_schemas_celery.scheduler.TenantAwareScheduler
+```
+
+#### Caveats
+`TenantAwareSchedulerMixin` uses a subclass of `SchedulerEntry` that allows the user to provide specific schemas to run a task on. This might prove useful if you have a task you only want to run in the `public` schema or to a subset of your tenants. In order to use set that, you must configure `tenant_schemas` in the tasks definition as such:
+
+```python
+app.conf.beat_schedule = {
+    "my-task": {
+        "task": "myapp.tasks.my_task",
+        "schedule": schedules.crontab(minute="*/5"),
+        "tenant_schemas": ["public"]
+    }
+}
+```
 
 Compatibility changes
 =====================
