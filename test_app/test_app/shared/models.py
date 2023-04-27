@@ -6,6 +6,7 @@ from django_tenants.models import TenantMixin
 
 class Client(TenantMixin):
     name = models.CharField(max_length=16)
+    ready = models.BooleanField(default=False)
 
 
 class Domain(TenantMixin):
