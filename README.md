@@ -131,14 +131,31 @@ That way you have full control over which schemas the task should be scheduled i
 
 
 ### Custom scheduler
-You are using the standard `Scheduler` or `PersistentScheduler` classes provided by `celery`, you can transition to using this package's `TenantAwareScheduler` or `TenantAwarePersistentScheduler` classes. You should then specify the scheduler you want to use in your invocation to `beat`. i.e:
+If you are using the standard `Scheduler` or `PersistentScheduler` classes provided by `celery`, you can transition to using this package's `TenantAwareScheduler` or `TenantAwarePersistentScheduler` classes. You should then specify the scheduler you want to use in the celery beat config or your invocation to `beat`. i.e:
 
 ```bash
 celery -A proj beat --scheduler=tenant_schemas_celery.scheduler.TenantAwareScheduler
 ```
 
 #### Caveats
-`TenantAwareSchedulerMixin` uses a subclass of `SchedulerEntry` that allows the user to provide specific schemas to run a task on. This might prove useful if you have a task you only want to run in the `public` schema or to a subset of your tenants. In order to use set that, you must configure `tenant_schemas` in the tasks definition as such:
+- There's a chance that celery beat will try to run a task for a newly created tenant before its migrations are ready, which could potentially lead to deadlocks. This is specially true with big projects with a lot of migrations and very frequent tasks (i.e: every minute). In order to mitigate it, one could do the following:
+    1. Subclass any of `TenantAwareScheduler` or `TenantAwarePersistentScheduler` and override the `get_queryset` method to match your definition of "ready" tenants. For example, imagine that you had a `ready` flag in your tenant model. You could do the following:
+
+    ```python
+    # tenants_app/scheduler.py
+    class MyTenantAwareScheduler(TenantAwareScheduler):
+        @classmethod
+        def get_queryset(cls):
+            return super().get_queryset().filter(ready=True)
+    ```
+
+    2. Use the new scheduler in your celery beat config or invocation:
+    
+    ```bash
+    celery -A proj beat --scheduler=tenants_app.scheduler.MyTenantAwareScheduler
+    ```
+
+- `TenantAwareSchedulerMixin` uses a subclass of `SchedulerEntry` that allows the user to provide specific schemas to run a task on. This might prove useful if you have a task you only want to run in the `public` schema or to a subset of your tenants. In order to use set that, you must configure `tenant_schemas` in the tasks definition as such:
 
 ```python
 app.conf.beat_schedule = {
