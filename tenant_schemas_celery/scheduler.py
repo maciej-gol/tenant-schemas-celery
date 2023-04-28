@@ -3,8 +3,11 @@ from typing import List, Optional
 
 from celery.beat import PersistentScheduler, ScheduleEntry, Scheduler
 from django_tenants.utils import get_tenant_model, tenant_context, get_public_schema_name
+from django.db import models
 
 logger = logging.getLogger(__name__)
+
+Tenant = get_tenant_model()
 
 
 class TenantAwareScheduleEntry(ScheduleEntry):
@@ -68,12 +71,16 @@ class TenantAwareScheduleEntry(ScheduleEntry):
 class TenantAwareSchedulerMixin:
     Entry = TenantAwareScheduleEntry
 
+    @classmethod
+    def get_queryset(cls) -> models.QuerySet:
+        return Tenant.objects.all()
+
     def apply_entry(self, entry: TenantAwareScheduleEntry, producer=None):
         """
         See https://github.com/celery/celery/blob/c571848023be732a1a11d46198cf831a522cfb54/celery/beat.py#L277
         """
 
-        tenants = get_tenant_model().objects.all()
+        tenants = self.get_queryset()
 
         if entry.tenant_schemas is None:
             tenants = tenants.exclude(schema_name=get_public_schema_name())

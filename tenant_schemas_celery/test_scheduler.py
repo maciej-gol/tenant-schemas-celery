@@ -13,6 +13,8 @@ from .scheduler import (
     TenantAwareSchedulerMixin,
 )
 
+Tenant = get_tenant_model()
+
 
 class FakeScheduler(TenantAwareSchedulerMixin, Scheduler):
     def __init__(self, *args, **kwargs):
@@ -93,10 +95,10 @@ class TestTenantAwareSchedulerMixin:
     @fixture
     def tenants(self) -> None:
         with schema_context(get_public_schema_name()):
-            get_tenant_model().objects.create(
+            Tenant.objects.create(
                 name="Tenant1", schema_name="tenant1"
             )
-            get_tenant_model().objects.create(
+            Tenant.objects.create(
                 name="Tenant2", schema_name="tenant2"
             )
 
@@ -107,7 +109,7 @@ class TestTenantAwareSchedulerMixin:
 
             schemas = (
                 entry.tenant_schemas
-                or get_tenant_model().objects.values_list(
+                or Tenant.objects.values_list(
                     "schema_name", flat=True
                 )
             )
@@ -116,6 +118,30 @@ class TestTenantAwareSchedulerMixin:
                 assert (schema_name, entry) in scheduler._sent
 
             scheduler._sent.clear()
+
+    @mark.django_db
+    class TestCustomQuerySet:
+        @fixture
+        def scheduler(self, app: CeleryApp) -> FakeScheduler:
+            class WithCustomQuerySet(FakeScheduler):
+                @classmethod
+                def get_queryset(cls):
+                    return super().get_queryset().filter(ready=True)
+
+            return WithCustomQuerySet(app)
+
+        def test_unready_tenants_are_not_sent(self, scheduler: FakeScheduler):
+            with schema_context(get_public_schema_name()):
+                Tenant.objects.create(
+                    name="Tenant1",
+                    schema_name="tenant1",
+                    ready=False
+                )
+
+            for task_name, entry in scheduler.schedule.items():
+                scheduler.apply_entry(entry)
+
+            assert scheduler._sent == []
 
 
 @COMMON_PARAMETERS
