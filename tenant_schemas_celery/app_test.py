@@ -10,7 +10,7 @@ def test_celery_app_should_allow_overriding_task_cls_as_object() -> None:
     class App(CeleryApp):
         task_cls = DummyTask
 
-    app = App()
+    app = App(set_as_current=False)
 
     @app.task()
     def some_task() -> None:
@@ -23,7 +23,7 @@ def test_celery_app_should_allow_overriding_task_cls_as_string() -> None:
     class App(CeleryApp):
         task_cls = f"{DummyTask.__module__}:{DummyTask.__name__}"
 
-    app = App()
+    app = App(set_as_current=False)
 
     @app.task()
     def some_task() -> None:
