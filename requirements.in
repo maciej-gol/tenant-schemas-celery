@@ -2,5 +2,5 @@ pip-tools>=3.1.0
 pytest
 pytest-django>=3.4.3
 freezegun
-more-itertools<10
+more-itertools<11
 psycopg2-binary
