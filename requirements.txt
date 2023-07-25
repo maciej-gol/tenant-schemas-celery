@@ -18,7 +18,7 @@ packaging==23.0
     # via
     #   build
     #   pytest
-pip-tools==7.0.0
+pip-tools==7.1.0
     # via -r requirements.in
 pluggy==1.0.0
     # via pytest
