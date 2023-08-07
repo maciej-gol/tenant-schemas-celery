@@ -12,7 +12,7 @@ freezegun==1.2.2
     # via -r requirements.in
 iniconfig==2.0.0
     # via pytest
-more-itertools==10.0.0
+more-itertools==10.1.0
     # via -r requirements.in
 packaging==23.0
     # via
