@@ -41,6 +41,7 @@ This assumes a fresh Celery 5.2.0 application. For previous versions, the key is
    from celery import shared_task
    from django.db import connection
    from myproject.celery import app
+   from tenant_schemas_celery.task import TenantTask
 
    @app.task
    def my_task():
