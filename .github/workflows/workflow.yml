@@ -15,7 +15,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10']
         tenants-app:
           - django-tenants
-        celery: ['celery']
+        celery: ['celery', 'celery<5.4']
         broker-url:
           - redis://redis:6379/0
           - amqp://guest:guest@rabbitmq:5672/
