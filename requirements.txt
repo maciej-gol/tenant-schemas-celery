@@ -24,7 +24,7 @@ packaging==23.0
     #   pytest
 pip-tools==7.4.1
     # via -r requirements.in
-pluggy==1.4.0
+pluggy==1.5.0
     # via pytest
 psycopg2-binary==2.9.9
     # via -r requirements.in
@@ -32,7 +32,7 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
-pytest==8.1.1
+pytest==8.2.0
     # via
     #   -r requirements.in
     #   pytest-django
