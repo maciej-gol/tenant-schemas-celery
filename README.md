@@ -1,4 +1,4 @@
-tenant-schemas-celery 
+tenant-schemas-celery
 =====================
 
 Celery application implementation that allows celery tasks to cooperate with
@@ -151,7 +151,7 @@ celery -A proj beat --scheduler=tenant_schemas_celery.scheduler.TenantAwareSched
     ```
 
     2. Use the new scheduler in your celery beat config or invocation:
-    
+
     ```bash
     celery -A proj beat --scheduler=tenants_app.scheduler.MyTenantAwareScheduler
     ```
@@ -170,6 +170,8 @@ app.conf.beat_schedule = {
 
 Compatibility changes
 =====================
+
+The `>=3.0` series drop support for Python 3.7.
 
 The `>=2.1` series drop support for `tenant-schemas`. It hasn't been maintainted for
 a long time.
