@@ -16,6 +16,7 @@ jobs:
         tenants-app:
           - django-tenants
         celery: ['celery', 'celery<5.5', 'celery<5.4']
+        django: ['django<5', 'django<6', 'django']
         broker-url:
           - redis://redis:6379/0
           - amqp://guest:guest@rabbitmq:5672/
@@ -26,6 +27,6 @@ jobs:
     - name: Run tests
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
-        ADDITIONAL_REQUIREMENTS: ${{ matrix.tenants-app }} redis ${{ matrix.celery }}
+        ADDITIONAL_REQUIREMENTS: ${{ matrix.tenants-app }} ${{ matrix.django }} redis ${{ matrix.celery }}
         BROKER_URL: ${{ matrix.broker-url }}
       run: ./run-tests
