@@ -3,10 +3,10 @@ export PYTHON_VERSION=${PYTHON_VERSION:-3.8}
 export ADDITIONAL_REQUIREMENTS=${ADDITIONAL_REQUIREMENTS:-django-tenants}
 export BROKER_URL=${BROKER_URL:-amqp://guest:guest@rabbitmq:5672/}
 
-docker-compose -f test-compose.yml down
+docker compose -f test-compose.yml down
 
-docker-compose -f test-compose.yml up --exit-code-from app
+docker compose -f test-compose.yml up --exit-code-from app
 CODE=$?
 
-docker-compose -f test-compose.yml down
+docker compose -f test-compose.yml down
 exit $CODE
