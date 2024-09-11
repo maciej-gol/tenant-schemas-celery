@@ -131,6 +131,17 @@ The `reset_remaining_jobs_in_all_schemas` task (called the dispatch task) should
 That way you have full control over which schemas the task should be scheduled in.
 
 
+### Celery beat database scheduler
+If you are using DatabaseScheduler and PeriodicTask model provided by [django-celery-beat](https://github.com/celery/django-celery-beat), you can use `TenantAwareDatabaseScheduler` now.
+```bash
+celery -A proj beat --scheduler=tenant_schemas_celery.scheduler.TenantAwareDatabaseScheduler
+```
+
+If you customized your tenant model, and you need a filter for fetching active tenants, you can use django settings like following.
+```python
+TENANT_DEFAULT_FILTERS = {"is_deleted__exact": False, "is_active": True}
+```
+
 ### Custom scheduler
 If you are using the standard `Scheduler` or `PersistentScheduler` classes provided by `celery`, you can transition to using this package's `TenantAwareScheduler` or `TenantAwarePersistentScheduler` classes. You should then specify the scheduler you want to use in the celery beat config or your invocation to `beat`. i.e:
 

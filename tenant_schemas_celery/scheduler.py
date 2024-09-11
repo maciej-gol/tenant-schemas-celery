@@ -1,9 +1,12 @@
+import json
 import logging
 from typing import List, Optional
 
 from celery.beat import PersistentScheduler, ScheduleEntry, Scheduler
 from django_tenants.utils import get_tenant_model, tenant_context, get_public_schema_name
+from django_celery_beat.schedulers import DatabaseScheduler, debug
 from django.db import models
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -120,3 +123,28 @@ class TenantAwarePersistentScheduler(
     TenantAwareSchedulerMixin, PersistentScheduler
 ):
     pass
+
+
+class TenantAwareDatabaseScheduler(DatabaseScheduler):
+    def all_as_schedule(self):
+        debug("DatabaseScheduler: Fetching database schedule")
+        s = {}
+        filter_kwargs = settings.TENANT_DEFAULT_FILTERS or {}
+
+        for tenant in Tenant.objects.filter(**filter_kwargs):
+            with tenant_context(tenant):
+                for periodic_task_obj in self.Model.objects.enabled():
+                    # update headers
+                    headers = json.loads(periodic_task_obj.headers)
+                    headers.update({"_schema_name": tenant.schema_name})
+                    periodic_task_obj.headers = json.dumps(headers)
+                    try:
+                        task_name = (
+                            f"{periodic_task_obj.name}-{tenant.schema_name}"
+                            if periodic_task_obj.name in s
+                            else periodic_task_obj.name
+                        )
+                        s[task_name] = self.Entry(periodic_task_obj, app=self.app)
+                    except ValueError:
+                        pass
+        return s
