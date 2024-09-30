@@ -33,4 +33,4 @@ services:
       - ./VERSION:/app/VERSION
       - ./README.md:/app/README.md
 
-    command: ["bash", "-c", "cd /app && ./__app_run_tests"]
+    command: ["bash", "-c", "cd /app && ./__app_run_tests || sleep infinity"]
