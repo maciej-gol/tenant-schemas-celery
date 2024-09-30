@@ -30,10 +30,10 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-TENANT_APPS = ['test_app.tenant']
-SHARED_APPS = ['test_app.shared', 'test_app.tenant']
+TENANT_APPS = ['test_app.tenant', 'django_celery_beat', 'test_app.tenant']
+SHARED_APPS = ['test_app.shared', 'django_celery_beat', 'test_app.shared']
 
-INSTALLED_APPS = ['django_tenants']
+INSTALLED_APPS = ['django_tenants', 'django_celery_beat']
 DB_ENGINE = 'django_tenants.postgresql_backend'
 DATABASE_ROUTERS = ['django_tenants.routers.TenantSyncRouter']
 DEFAULT_FILE_STORAGE = 'django_tenants.storage.TenantFileSystemStorage'
@@ -96,6 +96,9 @@ DATABASES = {
         'NAME': 'tenant_celery',
         'PASSWORD': 'qwe123',
         'USER': 'tenant_celery',
+        "OPTIONS": {
+            "CONN_MAX_AGE": None,
+        },
         'TEST': {
             'NAME': 'tenant_celery',
         }
