@@ -32,7 +32,7 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
-pytest==8.3.3
+pytest==8.3.4
     # via
     #   -r requirements.in
     #   pytest-django
