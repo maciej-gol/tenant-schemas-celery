@@ -1,7 +1,6 @@
 from typing import Any, List, Mapping, Optional, Tuple, TypedDict
 
 from celery import schedules, uuid
-from celery.beat import Scheduler
 from django.db import connection
 from django_tenants.utils import get_tenant_model, schema_context, get_public_schema_name
 from pytest import fixture, mark
@@ -9,16 +8,16 @@ from tenant_schemas_celery.app import CeleryApp
 
 from tenant_schemas_celery.scheduler import (
     TenantAwarePersistentScheduler,
-    TenantAwareSchedulerMixin,
+    TenantAwareScheduler,
 )
 
 Tenant = get_tenant_model()
 
 
-class FakeScheduler(TenantAwareSchedulerMixin, Scheduler):
+class FakeScheduler(TenantAwareScheduler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._sent: List[Tuple[str, TenantAwareSchedulerMixin.Entry]] = []
+        self._sent: List[Tuple[str, TenantAwareScheduler.Entry]] = []
 
     def apply_async(self, entry, producer=None, advance=True, **kwargs):
         self._sent.append((connection.schema_name, entry))
@@ -84,12 +83,21 @@ class TestTenantAwareSchedulerMixin:
         config: Mapping[str, ScheduledEntryConfig],
     ):
         for key, config in config.items():
-            assert key in scheduler.schedule
-            entry = scheduler.schedule[key]
+            config_tenant_schemas = config.get("tenant_schemas", None)
+            if config_tenant_schemas is None:
+                expected_entry_names = [f"{key}@__all_tenants_only__"]
+                expected_schema_names = [None]
+            else:
+                expected_entry_names = [f"{key}@{schema_name }" for schema_name in config_tenant_schemas]
+                expected_schema_names = config_tenant_schemas
 
-            assert entry.task == config["task"]
-            assert entry.schedule == schedules.crontab(minute="*")
-            assert entry.tenant_schemas == config.get("tenant_schemas", None)
+            for expected_entry_name, expected_schema_name in zip(expected_entry_names, expected_schema_names):
+                assert expected_entry_name in scheduler.schedule
+                entry = scheduler.schedule[expected_entry_name]
+
+                assert entry.task == config["task"]
+                assert entry.schedule == schedules.crontab(minute="*")
+                assert entry.options["headers"].get("_schema_name") == expected_schema_name
 
     @fixture
     def tenants(self) -> None:
@@ -106,12 +114,10 @@ class TestTenantAwareSchedulerMixin:
         for task_name, entry in scheduler.schedule.items():
             scheduler.apply_entry(entry)
 
-            schemas = (
-                entry.tenant_schemas
-                or Tenant.objects.values_list(
-                    "schema_name", flat=True
-                )
-            )
+            if entry.options["headers"].get("_all_tenants_only"):
+                schemas = Tenant.objects.values_list("schema_name", flat=True)
+            else:
+                schemas = [entry.options["headers"].get("_schema_name")]
 
             for schema_name in schemas:
                 assert (schema_name, entry) in scheduler._sent
@@ -163,9 +169,18 @@ class TestTenantAwarePersistentScheduler:
         config: Mapping[str, ScheduledEntryConfig],
     ):
         for key, config in config.items():
-            assert key in scheduler.schedule
-            entry = scheduler.schedule[key]
+            config_tenant_schemas = config.get("tenant_schemas", None)
+            if config_tenant_schemas is None:
+                expected_entry_names = [f"{key}@__all_tenants_only__"]
+                expected_schema_names = [None]
+            else:
+                expected_entry_names = [f"{key}@{schema_name }" for schema_name in config_tenant_schemas]
+                expected_schema_names = config_tenant_schemas
 
-            assert entry.task == config["task"]
-            assert entry.schedule == schedules.crontab(minute="*")
-            assert entry.tenant_schemas == config.get("tenant_schemas", None)
+            for expected_entry_name, expected_schema_name in zip(expected_entry_names, expected_schema_names):
+                assert expected_entry_name in scheduler.schedule
+                entry = scheduler.schedule[expected_entry_name]
+
+                assert entry.task == config["task"]
+                assert entry.schedule == schedules.crontab(minute="*")
+                assert entry.options["headers"].get("_schema_name") == expected_schema_name
