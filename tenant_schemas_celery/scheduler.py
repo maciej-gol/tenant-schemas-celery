@@ -67,7 +67,7 @@ class TenantAwareSchedulerMixin:
         if send_to_all_tenants:
             schemas = list(tenants.exclude(schema_name=get_public_schema_name()).values_list("schema_name", flat=True))
         else:
-            schemas = list(tenants.filter(schema_name=entry.options["headers"].get("_schema_name")).values_list("schema_name", flat=True))
+            schemas = list(tenants.filter(schema_name=entry.options["headers"]["_schema_name"]).values_list("schema_name", flat=True))
 
         logger.info(
             "TenantAwareScheduler: Sending due task %s (%s) to %s tenants",
