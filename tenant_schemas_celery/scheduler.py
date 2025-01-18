@@ -1,8 +1,9 @@
+import copy
 import logging
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from celery.beat import PersistentScheduler, ScheduleEntry, Scheduler
-from django_tenants.utils import get_tenant_model, tenant_context, get_public_schema_name
+from django_tenants.utils import get_tenant_model, schema_context, get_public_schema_name
 from django.db import models
 
 logger = logging.getLogger(__name__)
@@ -14,31 +15,14 @@ class TenantAwareScheduleEntry(ScheduleEntry):
     tenant_schemas: Optional[List[str]] = None
 
     def __init__(self, *args, **kwargs):
-        if args:
-            # Unpickled from database
-            self.tenant_schemas = args[-1]
+        if args and len(args) == 9:
+            # Unpickled from database. Drop unused tenant_schemas field.
+            args = args[:-1]
         else:
-            # Initialized from code
-            self.tenant_schemas = kwargs.pop("tenant_schemas", None)
+            # Initialized from code. Drop unused tenant_schemas field.
+            kwargs.pop("tenant_schemas", None)
 
         super().__init__(*args, **kwargs)
-
-    def update(self, other):
-        """Update values from another entry.
-
-        Will only update `tenant_schemas` and "editable" fields:
-            ``task``, ``schedule``, ``args``, ``kwargs``, ``options``.
-        """
-        vars(self).update(
-            {
-                "task": other.task,
-                "schedule": other.schedule,
-                "args": other.args,
-                "kwargs": other.kwargs,
-                "options": other.options,
-                "tenant_schemas": other.tenant_schemas,
-            }
-        )
 
     def __reduce__(self):
         """Needed for Pickle serialization"""
@@ -51,56 +35,56 @@ class TenantAwareScheduleEntry(ScheduleEntry):
             self.args,
             self.kwargs,
             self.options,
-            self.tenant_schemas,
         )
-
-    def editable_fields_equal(self, other):
-        for attr in (
-            "task",
-            "args",
-            "kwargs",
-            "options",
-            "schedule",
-            "tenant_schemas",
-        ):
-            if getattr(self, attr) != getattr(other, attr):
-                return False
-        return True
 
 
 class TenantAwareSchedulerMixin:
-    Entry = TenantAwareScheduleEntry
-
     @classmethod
     def get_queryset(cls) -> models.QuerySet:
         return Tenant.objects.all()
 
-    def apply_entry(self, entry: TenantAwareScheduleEntry, producer=None):
+    def _tenant_aware_beat_schedule_to_dict(self, beat_schedule: Dict[str, object]) -> Dict[str, Dict[str, object]]:
+        result = {}
+        for name, entry in beat_schedule.items():
+            tenant_schemas = entry.pop("tenant_schemas", None)
+            if tenant_schemas is None:
+                schema_name = '__all_tenants_only__'
+                entry.setdefault("options", {}).setdefault("headers", {})["_all_tenants_only"] = True
+                result[f"{name}@{schema_name}"] = entry
+            else:
+                for schema_name in tenant_schemas:
+                    entry.setdefault("options", {}).setdefault("headers", {})["_schema_name"] = schema_name
+                    result[f"{name}@{schema_name}"] = copy.deepcopy(entry)
+
+        return result
+
+    def apply_entry(self, entry: ScheduleEntry, producer=None):
         """
         See https://github.com/celery/celery/blob/c571848023be732a1a11d46198cf831a522cfb54/celery/beat.py#L277
         """
 
         tenants = self.get_queryset()
 
-        if entry.tenant_schemas is None:
-            tenants = tenants.exclude(schema_name=get_public_schema_name())
+        send_to_all_tenants = entry.options["headers"].pop("_all_tenants_only", False)
+        if send_to_all_tenants:
+            schemas = list(tenants.exclude(schema_name=get_public_schema_name()).values_list("schema_name", flat=True))
         else:
-            tenants = tenants.filter(schema_name__in=entry.tenant_schemas)
+            schemas = [entry.options["headers"].get("_schema_name", get_public_schema_name())]
 
         logger.info(
             "TenantAwareScheduler: Sending due task %s (%s) to %s tenants",
             entry.name,
             entry.task,
-            "all" if entry.tenant_schemas is None else str(len(tenants)),
+            "all" if send_to_all_tenants else str(len(schemas)),
         )
 
-        for tenant in tenants:
-            with tenant_context(tenant):
+        for schema in schemas:
+            with schema_context(schema):
                 logger.debug(
                     "Sending due task %s (%s) to tenant %s",
                     entry.name,
                     entry.task,
-                    tenant.name,
+                    schema,
                 )
                 try:
                     result = self.apply_async(
@@ -112,11 +96,18 @@ class TenantAwareSchedulerMixin:
                     logger.debug("%s sent. id->%s", entry.task, result.id)
 
 
+# These classes need custom entry to provide backwards-compatibility to remove the now not-used tenant_schemas field.
 class TenantAwareScheduler(TenantAwareSchedulerMixin, Scheduler):
-    pass
+    Entry = TenantAwareScheduleEntry
+
+    def merge_inplace(self, b: Dict[str, object]) -> None:
+        return super().merge_inplace(self._tenant_aware_beat_schedule_to_dict(b))
 
 
 class TenantAwarePersistentScheduler(
     TenantAwareSchedulerMixin, PersistentScheduler
 ):
-    pass
+    Entry = TenantAwareScheduleEntry
+
+    def merge_inplace(self, b: Dict[str, object]) -> None:
+        return super().merge_inplace(self._tenant_aware_beat_schedule_to_dict(b))
