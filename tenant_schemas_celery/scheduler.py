@@ -12,8 +12,6 @@ Tenant = get_tenant_model()
 
 
 class TenantAwareScheduleEntry(ScheduleEntry):
-    tenant_schemas: Optional[List[str]] = None
-
     def __init__(self, *args, **kwargs):
         if args and len(args) == 9:
             # Unpickled from database. Drop unused tenant_schemas field.
@@ -45,7 +43,7 @@ class TenantAwareSchedulerMixin:
 
     def _tenant_aware_beat_schedule_to_dict(self, beat_schedule: Dict[str, object]) -> Dict[str, Dict[str, object]]:
         result = {}
-        for name, entry in beat_schedule.items():
+        for name, entry in copy.deepcopy(beat_schedule).items():
             tenant_schemas = entry.pop("tenant_schemas", None)
             if tenant_schemas is None:
                 schema_name = '__all_tenants_only__'
@@ -65,11 +63,11 @@ class TenantAwareSchedulerMixin:
 
         tenants = self.get_queryset()
 
-        send_to_all_tenants = entry.options["headers"].pop("_all_tenants_only", False)
+        send_to_all_tenants = entry.options.setdefault("headers", {}).get("_all_tenants_only")
         if send_to_all_tenants:
             schemas = list(tenants.exclude(schema_name=get_public_schema_name()).values_list("schema_name", flat=True))
         else:
-            schemas = [entry.options["headers"].get("_schema_name", get_public_schema_name())]
+            schemas = list(tenants.filter(schema_name=entry.options["headers"].get("_schema_name")).values_list("schema_name", flat=True))
 
         logger.info(
             "TenantAwareScheduler: Sending due task %s (%s) to %s tenants",
