@@ -1,4 +1,4 @@
-from celery.contrib.django.task import DjangoTask
+from celery import Task
 from django.db import connection
 
 from tenant_schemas_celery.cache import SimpleCache
