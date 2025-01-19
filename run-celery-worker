@@ -1,0 +1,6 @@
+#!/bin/bash
+. .env/bin/activate
+cd test_app
+export DJANGO_SETTINGS_MODULE=test_app.settings
+
+celery -A tenant_schemas_celery.test_app:app worker -l INFO

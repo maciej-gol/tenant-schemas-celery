@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from django.core.exceptions import FieldDoesNotExist
 
 from test_app.shared.models import Client

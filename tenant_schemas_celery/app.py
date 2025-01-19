@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 try:
     from celery import Celery
 except ImportError:
@@ -80,7 +78,7 @@ class CeleryApp(Celery):
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("task_cls", self.task_cls)
-        super(CeleryApp, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def create_task_cls(self):
         return self.subclass_with_self(
@@ -99,4 +97,4 @@ class CeleryApp(Celery):
 
     def send_task(self, name, args=None, kwargs=None, **options):
         self._update_headers(options)
-        return super(CeleryApp, self).send_task(name, args=args, kwargs=kwargs, **options)
+        return super().send_task(name, args=args, kwargs=kwargs, **options)
