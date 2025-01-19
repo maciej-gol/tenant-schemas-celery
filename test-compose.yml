@@ -6,18 +6,15 @@ services:
       - POSTGRES_PASSWORD=qwe123
       - POSTGRES_USER=tenant_celery
       - POSTGRES_DB=tenant_celery
-    logging:
-      driver: "none"
+    network_mode: host
 
   rabbitmq:
     image: rabbitmq
-    logging:
-      driver: "none"
+    network_mode: host
 
   redis:
     image: redis
-    logging:
-      driver: "none"
+    network_mode: host
 
   app:
     image: "python:${PYTHON_VERSION:-3.8}-slim"
@@ -39,4 +36,4 @@ services:
       - ./VERSION:/app/VERSION
       - ./README.md:/app/README.md
 
-    command: ["bash", "-c", "cd /app && ./__app_run_tests"]
+    command: ["bash", "-c", "sleep infinity"]

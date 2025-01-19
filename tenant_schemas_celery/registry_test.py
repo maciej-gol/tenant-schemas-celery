@@ -4,8 +4,8 @@ import pytest
 from celery import Task
 
 from tenant_schemas_celery.task import TenantTask
-from .test_app import app
-from .test_tasks import get_schema_name, get_schema_from_class_task, SchemaClassTask
+from tenant_schemas_celery.test_app import app
+from tenant_schemas_celery.test_tasks import get_schema_name, get_schema_from_class_task, SchemaClassTask
 
 
 def test_get_schema_name_registration(transactional_db):
