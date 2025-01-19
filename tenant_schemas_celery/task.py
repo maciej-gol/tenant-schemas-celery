@@ -2,7 +2,6 @@ from celery import Task
 from django.db import connection
 
 from tenant_schemas_celery.cache import SimpleCache
-from tenant_schemas_celery.compat import get_tenant_model
 
 _shared_storage = {}
 
@@ -37,6 +36,8 @@ class TenantTask(Task):
 
     @classmethod
     def get_tenant_for_schema(cls, schema_name):
+        from tenant_schemas_celery.compat import get_tenant_model
+
         missing = object()
         cache = cls.tenant_cache()
         cached_value = cache.get(schema_name, default=missing)
