@@ -15,25 +15,3 @@ services:
   redis:
     image: redis
     network_mode: host
-
-  app:
-    image: "python:${PYTHON_VERSION:-3.8}-slim"
-    depends_on:
-      - postgres
-      - redis
-    environment:
-      - DATABASE_HOST=postgres
-      - BROKER_URL=${BROKER_URL:-amqp://guest:guest@rabbitmq:5672/}
-      - ADDITIONAL_REQUIREMENTS=${ADDITIONAL_REQUIREMENTS}
-      - TASK_TENANT_CACHE_SECONDS=10
-
-    volumes:
-      - ./tenant_schemas_celery:/app/tenant_schemas_celery
-      - ./test_app:/app/test_app
-      - ./requirements.txt:/app/requirements.txt
-      - ./__app_run_tests:/app/__app_run_tests
-      - ./setup.py:/app/setup.py
-      - ./VERSION:/app/VERSION
-      - ./README.md:/app/README.md
-
-    command: ["bash", "-c", "cd /app && ./__app_run_tests"]
