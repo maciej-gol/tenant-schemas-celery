@@ -14,7 +14,7 @@ services:
     image: redis
 
   app:
-    image: "python:${PYTHON_VERSION:-3.8}-slim"
+    image: "python:${PYTHON_VERSION:-3.9}-slim"
     depends_on:
       - postgres
       - redis

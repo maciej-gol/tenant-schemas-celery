@@ -1,4 +1,3 @@
-from tempfile import NamedTemporaryFile
 from typing import Any, List, Mapping, Optional, Tuple, TypedDict
 
 from celery import schedules, uuid
@@ -153,11 +152,10 @@ class TestTenantAwarePersistentScheduler:
     """
 
     @fixture
-    def scheduler(self, app: CeleryApp) -> TenantAwarePersistentScheduler:
-        with NamedTemporaryFile() as file:
-            yield TenantAwarePersistentScheduler(
-                app, schedule_filename=str(file.name)
-            )
+    def scheduler(self, app: CeleryApp, tmp_path: str) -> TenantAwarePersistentScheduler:
+        yield TenantAwarePersistentScheduler(
+            app, schedule_filename=str(tmp_path / "schedule")
+        )
 
     def test_schedule_setup_properly(
         self,
