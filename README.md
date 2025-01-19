@@ -31,6 +31,12 @@ Usage
    app = TenantAwareCeleryApp()
    app.config_from_object('django.conf:settings')
    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+
+   # On Celery >= 5.4, if you want to use DjangoTask
+   from tenant_schemas_celery.app import CeleryApp
+
+   class TenantAwareCeleryApp(CeleryApp):
+      task_cls = 'tenant_schemas_celery.task:TenantDjangoTask'
 ```
 
 This assumes a fresh Celery 5.2.0 application. For previous versions, the key is to create a new `CeleryApp` instance that will be used to access task decorator from.

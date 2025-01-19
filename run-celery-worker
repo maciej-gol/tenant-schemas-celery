@@ -1,5 +1,5 @@
 #!/bin/bash
-. .env/bin/activate
+pyenv activate tenant-schemas-celery
 cd test_app
 export DJANGO_SETTINGS_MODULE=test_app.settings
 

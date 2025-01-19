@@ -11,7 +11,7 @@ class SharedTenantCache(SimpleCache):
         super().__init__(storage=_shared_storage)
 
 
-class TenantTask(Task):
+class TenantTaskMixin:
     """ Custom Task class that injects db schema currently used to the task's
         keywords so that the worker can use the same schema.
     """
@@ -66,3 +66,16 @@ class TenantTask(Task):
     def apply(self, args=None, kwargs=None, *arg, **kw):
         self._update_headers(kw)
         return super().apply(args, kwargs, *arg, **kw)
+
+class TenantTask(TenantTaskMixin, Task):
+    ...
+
+
+# DjangoTask requires Celery 5.4. Before then, we can't make it the default.
+try:
+    from celery.contrib.django.task import DjangoTask
+
+    class TenantDjangoTask(TenantTaskMixin, DjangoTask):
+        ...
+except ImportError:
+    pass
