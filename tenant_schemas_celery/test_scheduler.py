@@ -1,4 +1,6 @@
-from typing import Any, List, Mapping, Optional, Tuple, TypedDict
+from collections.abc import Mapping
+from tempfile import NamedTemporaryFile
+from typing import Any, Optional, TypedDict
 
 from celery import schedules, uuid
 from django.db import connection
@@ -17,7 +19,7 @@ Tenant = get_tenant_model()
 class FakeScheduler(TenantAwareScheduler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._sent: List[Tuple[str, TenantAwareScheduler.Entry]] = []
+        self._sent: list[tuple[str, TenantAwareScheduler.Entry]] = []
 
     def apply_async(self, entry, producer=None, advance=True, **kwargs):
         self._sent.append((connection.schema_name, entry))
@@ -27,10 +29,10 @@ class FakeScheduler(TenantAwareScheduler):
 class ScheduledEntryConfig(TypedDict, total=False):
     task: str
     schedule: int
-    args: Optional[Tuple[Any, ...]]
+    args: Optional[tuple[Any, ...]]
     kwargs: Optional[Mapping[str, Any]]
     options: Optional[Mapping[str, Any]]
-    tenant_schemas: Optional[List[str]]
+    tenant_schemas: Optional[list[str]]
 
 
 COMMON_PARAMETERS = mark.parametrize(
