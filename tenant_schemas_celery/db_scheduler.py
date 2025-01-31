@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import List
 from django_celery_beat.models import PeriodicTask, PeriodicTasks
 from django_celery_beat.schedulers import DatabaseScheduler
 
@@ -11,19 +10,19 @@ logger = logging.getLogger(__name__)
 
 
 class TenantAwareModelManager:
-    def get_public_schema_name(self) -> List[str]:
+    def get_public_schema_name(self) -> list[str]:
         return [get_public_schema_name()]
 
-    def get_tenant_schema_names(self) -> List[str]:
+    def get_tenant_schema_names(self) -> list[str]:
         return list(get_tenant_model().objects.values_list("schema_name", flat=True))
 
-    def get_schema_names(self) -> List[str]:
+    def get_schema_names(self) -> list[str]:
         return [
             *self.get_public_schema_name(),
             *self.get_tenant_schema_names(),
         ]
 
-    def enabled(self) -> List[PeriodicTask]:
+    def enabled(self) -> list[PeriodicTask]:
         models = []
         for schema_name in self.get_schema_names():
             with schema_context(schema_name):
