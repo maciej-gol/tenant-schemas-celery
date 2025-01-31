@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 
+import celery
 from freezegun import freeze_time
+import pytest
 
 from tenant_schemas_celery.task import TenantTask
 from tenant_schemas_celery.app import CeleryApp
@@ -145,3 +147,32 @@ def test_get_tenant_databases_custom_settings(celery_conf):
 
     # Should prioritize the task class's preference over Celery app config
     assert CustomTask.get_tenant_databases() == ("customdb",)
+
+
+@pytest.mark.skipif(celery.VERSION >= (5, 4, 0), reason="DjangoTask is only available on Celery 5.4+")
+def test_should_not_expose_django_task_before_celery_54():
+    class App(CeleryApp):
+        task_cls = 'tenant_schemas_celery.task:TenantDjangoTask'
+
+    app = App('testapp')
+    @app.task
+    def my_task():
+        pass
+
+    with pytest.raises(AttributeError, match="module 'tenant_schemas_celery.task' has no attribute 'TenantDjangoTask'"):
+        # Force evaluation.
+        app.tasks
+
+
+@pytest.mark.skipif(celery.VERSION < (5, 4, 0), reason="DjangoTask is only available on Celery 5.4+")
+def test_should_expose_django_task_on_celery_54():
+    class App(CeleryApp):
+        task_cls = 'tenant_schemas_celery.task:TenantDjangoTask'
+
+    app = App('testapp')
+    @app.task
+    def my_task():
+        pass
+
+    # Force evaluation.
+    app.tasks

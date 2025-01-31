@@ -163,7 +163,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-CELERY_BROKER_URL = os.environ.get("BROKER_URL", 'amqp://tenants:tenants@localhost:5672/')
+CELERY_BROKER_URL = os.environ.get("BROKER_URL", 'amqp://guest:guest@localhost:5672/')
 CELERYBEAT_SCHEDULE = {
     'test-periodic-task': {
         'task': 'test_app.tenant.tasks.periodic_print_schema',

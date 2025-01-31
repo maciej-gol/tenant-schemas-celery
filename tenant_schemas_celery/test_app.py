@@ -1,7 +1,7 @@
 import os
 
 try:
-    from .app import CeleryApp
+    from tenant_schemas_celery.app import CeleryApp
 except ImportError:
     app = None
 else:

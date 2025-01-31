@@ -1,0 +1,17 @@
+version: "3.6"
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_PASSWORD=qwe123
+      - POSTGRES_USER=tenant_celery
+      - POSTGRES_DB=tenant_celery
+    network_mode: host
+
+  rabbitmq:
+    image: rabbitmq
+    network_mode: host
+
+  redis:
+    image: redis
+    network_mode: host

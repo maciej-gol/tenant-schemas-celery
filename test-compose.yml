@@ -6,21 +6,15 @@ services:
       - POSTGRES_PASSWORD=qwe123
       - POSTGRES_USER=tenant_celery
       - POSTGRES_DB=tenant_celery
-    logging:
-      driver: "none"
 
   rabbitmq:
     image: rabbitmq
-    logging:
-      driver: "none"
 
   redis:
     image: redis
-    logging:
-      driver: "none"
 
   app:
-    image: "python:${PYTHON_VERSION:-3.8}-slim"
+    image: "python:${PYTHON_VERSION:-3.9}-slim"
     depends_on:
       - postgres
       - redis

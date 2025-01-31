@@ -1,5 +1,6 @@
 import json
 import logging
+
 from django_celery_beat.models import PeriodicTask, PeriodicTasks
 from django_celery_beat.schedulers import DatabaseScheduler
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-export PYTHON_VERSION=${PYTHON_VERSION:-3.8}
+export PYTHON_VERSION=${PYTHON_VERSION:-3.9}
 export ADDITIONAL_REQUIREMENTS=${ADDITIONAL_REQUIREMENTS:-django-tenants}
 export BROKER_URL=${BROKER_URL:-amqp://guest:guest@rabbitmq:5672/}
 

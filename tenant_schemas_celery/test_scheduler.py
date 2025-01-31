@@ -8,7 +8,7 @@ from django_tenants.utils import get_tenant_model, schema_context, get_public_sc
 from pytest import fixture, mark
 from tenant_schemas_celery.app import CeleryApp
 
-from .scheduler import (
+from tenant_schemas_celery.scheduler import (
     TenantAwarePersistentScheduler,
     TenantAwareScheduler,
 )
@@ -160,11 +160,10 @@ class TestTenantAwarePersistentScheduler:
     """
 
     @fixture
-    def scheduler(self, app: CeleryApp) -> TenantAwarePersistentScheduler:
-        with NamedTemporaryFile() as file:
-            yield TenantAwarePersistentScheduler(
-                app, schedule_filename=str(file.name)
-            )
+    def scheduler(self, app: CeleryApp, tmp_path: str) -> TenantAwarePersistentScheduler:
+        yield TenantAwarePersistentScheduler(
+            app, schedule_filename=str(tmp_path / "schedule")
+        )
 
     def test_schedule_setup_properly(
         self,
