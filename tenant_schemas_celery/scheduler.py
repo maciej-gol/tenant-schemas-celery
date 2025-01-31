@@ -1,6 +1,5 @@
 import copy
 import logging
-from typing import Dict, List, Optional
 
 from celery.beat import PersistentScheduler, ScheduleEntry, Scheduler
 from django_tenants.utils import get_tenant_model, schema_context, get_public_schema_name
@@ -41,7 +40,7 @@ class TenantAwareSchedulerMixin:
     def get_queryset(cls) -> models.QuerySet:
         return Tenant.objects.all()
 
-    def _tenant_aware_beat_schedule_to_dict(self, beat_schedule: Dict[str, object]) -> Dict[str, Dict[str, object]]:
+    def _tenant_aware_beat_schedule_to_dict(self, beat_schedule: dict[str, object]) -> dict[str, dict[str, object]]:
         result = {}
         for name, entry in copy.deepcopy(beat_schedule).items():
             tenant_schemas = entry.pop("tenant_schemas", None)
@@ -98,7 +97,7 @@ class TenantAwareSchedulerMixin:
 class TenantAwareScheduler(TenantAwareSchedulerMixin, Scheduler):
     Entry = TenantAwareScheduleEntry
 
-    def merge_inplace(self, b: Dict[str, object]) -> None:
+    def merge_inplace(self, b: dict[str, object]) -> None:
         return super().merge_inplace(self._tenant_aware_beat_schedule_to_dict(b))
 
 
@@ -107,5 +106,5 @@ class TenantAwarePersistentScheduler(
 ):
     Entry = TenantAwareScheduleEntry
 
-    def merge_inplace(self, b: Dict[str, object]) -> None:
+    def merge_inplace(self, b: dict[str, object]) -> None:
         return super().merge_inplace(self._tenant_aware_beat_schedule_to_dict(b))
