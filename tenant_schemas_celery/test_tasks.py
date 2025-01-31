@@ -38,6 +38,16 @@ def get_schema_name():
     return connection.schema_name
 
 
+@shared_task
+def print_all_schemas():
+    print(f"all schemas: {connection.schema_name}")
+
+
+@shared_task
+def print_schema():
+    print(f"current schema: {connection.schema_name}")
+
+
 class SchemaClassTask(Task):
     @property
     def connection_schema_name(self):

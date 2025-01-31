@@ -15,8 +15,13 @@ else:
 
         CELERYBEAT_SCHEDULE = {
             'test-periodic-task': {
-                'task': 'tenant_schemas_celery.test_tasks.periodic_print_schema',
+                'task': 'tenant_schemas_celery.test_tasks.print_all_schemas',
                 'schedule': 4.0,
+            },
+            'test-periodic-task-smth': {
+                'task': 'tenant_schemas_celery.test_tasks.print_schema',
+                'schedule': 4.0,
+                'tenant_schemas': ['tenant-1'],
             },
         }
 
