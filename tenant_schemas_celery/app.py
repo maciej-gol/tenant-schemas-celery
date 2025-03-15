@@ -27,11 +27,11 @@ def switch_schema(task, kwargs, **kw):
 
     schema = get_schema_name_from_task(task, kwargs) or get_public_schema_name()
 
-    # If the schema has not changed, don't do anything.
-    if connection.schema_name == schema:
-        return
-
     tenant_databases = task.get_tenant_databases()
+
+    # If the schema has not changed, don't do anything.
+    if all(connections[db_name].schema_name == schema for db_name in tenant_databases):
+        return
 
     if connection.schema_name != get_public_schema_name():
         for db_name in tenant_databases:
@@ -52,14 +52,17 @@ def restore_schema(task, **kwargs):
     schema_name = get_public_schema_name()
     include_public = True
 
+    tenant_databases = task.get_tenant_databases()
+
     if hasattr(task, "_old_schema"):
         schema_name, include_public = task._old_schema
 
     # If the schema names match, don't do anything.
-    if connection.schema_name == schema_name:
+    if all(connections[db_name].schema_name == schema_name for db_name in tenant_databases):
         return
 
-    for db_name in task.get_tenant_databases():
+
+    for db_name in tenant_databases:
         connections[db_name].set_schema(schema_name, include_public=include_public)
 
 
