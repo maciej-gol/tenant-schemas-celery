@@ -150,29 +150,9 @@ def test_get_tenant_databases_custom_settings(celery_conf):
 
 
 @pytest.mark.skipif(celery.VERSION >= (5, 4, 0), reason="DjangoTask is only available on Celery 5.4+")
-def test_should_not_expose_django_task_before_celery_54():
-    class App(CeleryApp):
-        task_cls = 'tenant_schemas_celery.task:TenantDjangoTask'
-
-    app = App('testapp')
-    @app.task
-    def my_task():
-        pass
-
-    with pytest.raises(AttributeError, match="module 'tenant_schemas_celery.task' has no attribute 'TenantDjangoTask'"):
-        # Force evaluation.
-        app.tasks
-
+def test_should_not_make_task_inherit_from_djangotask_before_celery_54():
+    assert issubclass(TenantTask, celery.Task)
 
 @pytest.mark.skipif(celery.VERSION < (5, 4, 0), reason="DjangoTask is only available on Celery 5.4+")
-def test_should_expose_django_task_on_celery_54():
-    class App(CeleryApp):
-        task_cls = 'tenant_schemas_celery.task:TenantDjangoTask'
-
-    app = App('testapp')
-    @app.task
-    def my_task():
-        pass
-
-    # Force evaluation.
-    app.tasks
+def test_should_make_task_inherit_from_django_task_starting_celery_54():
+    assert issubclass(TenantTask, celery.contrib.django.task.DjangoTask)
