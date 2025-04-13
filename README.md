@@ -1,9 +1,8 @@
 tenant-schemas-celery
 =====================
 
-Celery application implementation that allows celery tasks to cooperate with
-multi-tenancy provided by [django-tenant-schemas](https://github.com/bernardopires/django-tenant-schemas) and
-[django-tenants](https://github.com/tomturner/django-tenants) packages.
+Celery application implementation that allows celery tasks to cooperate with the
+[django-tenants](https://github.com/tomturner/django-tenants) package.
 
 This project might not seem frequently updated, but it just has all the functionality needed. Issues and questions are answered quickly.
 
@@ -31,15 +30,9 @@ Usage
    app = TenantAwareCeleryApp()
    app.config_from_object('django.conf:settings')
    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
-
-   # On Celery >= 5.4, if you want to use DjangoTask
-   from tenant_schemas_celery.app import CeleryApp
-
-   class TenantAwareCeleryApp(CeleryApp):
-      task_cls = 'tenant_schemas_celery.task:TenantDjangoTask'
 ```
 
-This assumes a fresh Celery 5.2.0 application. For previous versions, the key is to create a new `CeleryApp` instance that will be used to access task decorator from.
+This assumes a fresh Celery 5.4.0 application. For previous versions, the key is to create a new `CeleryApp` instance that will be used to access task decorator from.
 
    * Replace your `@task` decorator with `@app.task`
 
@@ -89,8 +82,6 @@ the `tenant_databases` attribute of the `TenantTask` to a list of database names
 If not set, the settings defaults to `["default"]`.
 
 ### Tenant objects cache
-
-New in `0.3.0`.
 
 Every time a celery task is executed, the tenant object of the `connection` object is being refetched.
 For some use cases, this can introduce significant performance hit.
