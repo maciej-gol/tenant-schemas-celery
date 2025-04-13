@@ -2,13 +2,19 @@ import json
 import logging
 
 from django_celery_beat.models import PeriodicTask, PeriodicTasks
-from django_celery_beat.schedulers import DatabaseScheduler
+from django_celery_beat.schedulers import DatabaseScheduler, ModelEntry
 
 from tenant_schemas_celery.compat import get_tenant_model, schema_context, get_public_schema_name, tenant_context
 from tenant_schemas_celery.scheduler import TenantAwareSchedulerMixin
 
 logger = logging.getLogger(__name__)
 
+
+class TenantAwareModelEntry(ModelEntry):
+    def save(self) -> None:
+        schema_name = self.options["headers"].get("_schema_name", get_public_schema_name())
+        with schema_context(schema_name):
+            super().save()
 
 class TenantAwareModelManager:
     def get_public_schema_name(self) -> list[str]:
@@ -59,6 +65,7 @@ class TenantAwarePeriodicTasks:
 
 
 class TenantAwareDatabaseScheduler(TenantAwareSchedulerMixin, DatabaseScheduler):
+    Entry = TenantAwareModelEntry
     Model = TenantAwarePeriodicTaskWrapper
     Changes = TenantAwarePeriodicTasks
 
