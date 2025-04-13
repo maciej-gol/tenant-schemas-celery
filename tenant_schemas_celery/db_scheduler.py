@@ -31,13 +31,18 @@ class TenantAwareModelManager:
 
     def enabled(self) -> list[PeriodicTask]:
         models = []
+        names_seen = {}
         for schema_name in self.get_schema_names():
             with schema_context(schema_name):
                 for task in PeriodicTask.objects.enabled():
+                    if previously_seen_schema := names_seen.get(task.name):
+                        raise ValueError(f"duplicate periodic task name: {task.name!r}. Previously seen in schema: {previously_seen_schema!r}.")
+
                     headers = json.loads(task.headers)
                     headers.setdefault("_schema_name", schema_name)
                     task.headers = json.dumps(headers)
                     models.append(task)
+                    names_seen[task.name] = schema_name
 
         return models
 

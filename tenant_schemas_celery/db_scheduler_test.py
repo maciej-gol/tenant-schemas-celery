@@ -95,6 +95,33 @@ def test_schedule_should_read_mixed_entries__two_tenants(client_factory: ClientF
 
 
 @pytest.mark.usefixtures("transactional_db")
+def test_schedule_should_reject_tasks_with_duplicate_names_in_two_schemas(client_factory: ClientFactory) -> None:
+    scheduler = TenantAwareDatabaseScheduler(app=app)
+    tenant_one = client_factory.create_client(
+        name="test_tenant_one", schema_name="test_tenant_one", domain_url="test_tenant_one.test.com"
+    )
+    with tenant_context(tenant_one):
+        PeriodicTask.objects.create(
+            name="test_task_name@duplicate",
+            task="test_task",
+            interval=IntervalSchedule.objects.get_or_create(every=1, period="seconds")[0],
+        )
+
+    tenant_two = client_factory.create_client(
+        name="test_tenant_two", schema_name="test_tenant_two", domain_url="test_tenant_two.test.com"
+    )
+    with tenant_context(tenant_two):
+        PeriodicTask.objects.create(
+            name="test_task_name@duplicate",
+            task="test_task",
+            interval=IntervalSchedule.objects.get_or_create(every=1, period="seconds")[0],
+        )
+
+    with pytest.raises(ValueError, match=r"duplicate periodic task name: 'test_task_name@duplicate'. Previously seen in schema: 'test_tenant_one'."):
+        scheduler.schedule
+
+
+@pytest.mark.usefixtures("transactional_db")
 def test_schedule_should_read_updates_from_db__public() -> None:
     scheduler = TenantAwareDatabaseScheduler(app=app)
     task = PeriodicTask.objects.create(
