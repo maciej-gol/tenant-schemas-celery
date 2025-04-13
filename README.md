@@ -186,6 +186,8 @@ The package will raise `ValueError` if entries with conflicting names are detect
 Compatibility changes
 =====================
 
+The `>=4.0` series drop support for Python 3.8 and Celery<5.
+
 The `>=3.0` series drop support for Python 3.7.
 
 The `>=2.1` series drop support for `tenant-schemas`. It hasn't been maintainted for
