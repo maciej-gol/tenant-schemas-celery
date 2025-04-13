@@ -2,6 +2,8 @@ import pytest
 
 from celery import current_app
 
+from tenant_schemas_celery.test_utils import ClientFactory
+
 
 @pytest.fixture
 def celery_conf():
@@ -17,3 +19,9 @@ def celery_conf():
     yield new_conf
 
     current_app.config_from_object(original)
+
+
+@pytest.fixture
+def client_factory() -> ClientFactory:
+    with ClientFactory() as factory:
+        yield factory

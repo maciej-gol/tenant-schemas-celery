@@ -71,8 +71,6 @@ accordingly.
 
 ### Multiple databases support
 
-New in `2.0.0`.
-
 Inside your celery tasks you might be working with multiple databases. You might want to change the schema for
 all of the connections, or just a subset of them.
 
@@ -96,16 +94,16 @@ def some_task():
     ...
 ```
 
-Celery beat integration
------------------------
+### Celery beat integration
 
-In order to run celery beat tasks in a multi-tenant environment, you've got two options:
+In order to run celery beat tasks in a multi-tenant environment, you've got the following options:
 - Use a dispatching task that will send a task for each tenant
 - Use a custom scheduler
+- Use django-celery-beat package
 
 i.e: Let's say that you would like to run a `reset_remaining_jobs` tasks periodically, for every tenant that you have.
 
-### Dispatcher task pattern
+#### Dispatcher task pattern
 You can schedule one dispatcher task that will iterate over all schemas and send that task within the schema's context:
 
 ```python
@@ -127,15 +125,17 @@ The `reset_remaining_jobs_in_all_schemas` task (called the dispatch task) should
 
 That way you have full control over which schemas the task should be scheduled in.
 
+**Note:** All tasks will be scheduled immediately across all tenants, possibly creating the thundering herd problem.
 
-### Custom scheduler
+
+#### Custom scheduler
 If you are using the standard `Scheduler` or `PersistentScheduler` classes provided by `celery`, you can transition to using this package's `TenantAwareScheduler` or `TenantAwarePersistentScheduler` classes. You should then specify the scheduler you want to use in the celery beat config or your invocation to `beat`. i.e:
 
 ```bash
 celery -A proj beat --scheduler=tenant_schemas_celery.scheduler.TenantAwareScheduler
 ```
 
-#### Caveats
+##### Caveats
 - There's a chance that celery beat will try to run a task for a newly created tenant before its migrations are ready, which could potentially lead to deadlocks. This is specially true with big projects with a lot of migrations and very frequent tasks (i.e: every minute). In order to mitigate it, one could do the following:
     1. Subclass any of `TenantAwareScheduler` or `TenantAwarePersistentScheduler` and override the `get_queryset` method to match your definition of "ready" tenants. For example, imagine that you had a `ready` flag in your tenant model. You could do the following:
 
@@ -153,7 +153,7 @@ celery -A proj beat --scheduler=tenant_schemas_celery.scheduler.TenantAwareSched
     celery -A proj beat --scheduler=tenants_app.scheduler.MyTenantAwareScheduler
     ```
 
-- `TenantAwareSchedulerMixin` uses a subclass of `SchedulerEntry` that allows the user to provide specific schemas to run a task on. This might prove useful if you have a task you only want to run in the `public` schema or to a subset of your tenants. In order to use set that, you must configure `tenant_schemas` in the tasks definition as such:
+- `TenantAwareSchedulerMixin` uses a subclass of `SchedulerEntry` that allows the user to provide specific schemas to run a task on. This might prove useful if you have a task you only want to run in the `public` schema or to a subset of your tenants. In order to set that, you must configure `tenant_schemas` in the tasks definition as such:
 
 ```python
 app.conf.beat_schedule = {
@@ -164,6 +164,24 @@ app.conf.beat_schedule = {
     }
 }
 ```
+
+#### django-celery-beat integration
+
+You can use the `tenant_schemas_celery.db_scheduler.TenantAwareDatabaseScheduler` scheduler to integrate the `django-celery-beat` package with multiple tenants.
+The scheduler will pull all periodic tasks defined in every tenant schema and public schema, and add them to the scheduler's registry.
+
+Because tasks from schemas are merged into a single registry, tasks' names must be unique. For example, you can add the `@<schema_name>` suffix to each of the entries:
+
+```python
+# In public schema
+PeriodicTask.objects.create(name="my_task@public", task="my_app.tasks.my_task")
+# In schema "tenant"
+PeriodicTask.objects.create(name="my_task@tenant", task="my_app.tasks.my_task")
+```
+
+The package will raise `ValueError` if entries with conflicting names are detected.
+
+**Note:** Since every periodic task defined in the database can have different schedule (incl. offset), this allows you to avoid the thundering herd problem.
 
 Compatibility changes
 =====================

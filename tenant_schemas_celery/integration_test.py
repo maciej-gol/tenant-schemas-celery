@@ -1,7 +1,7 @@
 import time
 
 import pytest
-from django.db import connection, connections
+from django.db import ProgrammingError, connection, connections
 from test_app.tenant.models import DummyModel
 
 from tenant_schemas_celery.test_utils import create_client
@@ -50,10 +50,10 @@ def test_should_update_model(setup_tenant_test):
     # We should be in public schema where dummies don't exist.
     for dummy in dummy1, dummy2:
         # Test both async and local versions.
-        with pytest.raises(DoesNotExist):
+        with pytest.raises(ProgrammingError):
             update_task.apply_async(args=(dummy.pk, "updated-name")).get()
 
-        with pytest.raises(DoesNotExist):
+        with pytest.raises(ProgrammingError):
             update_task.apply(args=(dummy.pk, "updated-name")).get()
 
     connection.set_tenant(setup_tenant_test["tenant1"])
@@ -112,9 +112,8 @@ def test_restoring_schema_name(setup_tenant_test):
     connection.set_tenant(setup_tenant_test["tenant2"])
 
     # The model does not exist in the public schema.
-    with pytest.raises(DoesNotExist):
-        with schema_context(get_public_schema_name()):
-            update_task.apply_async(args=(dummy2.pk, "updated-name")).get()
+    with pytest.raises(ProgrammingError), schema_context(get_public_schema_name()):
+        update_task.apply_async(args=(dummy2.pk, "updated-name")).get()
 
     assert connection.schema_name == setup_tenant_test["tenant2"].schema_name
 
