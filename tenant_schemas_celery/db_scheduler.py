@@ -24,10 +24,10 @@ class TenantAwareModelManager:
         return list(get_tenant_model().objects.values_list("schema_name", flat=True))
 
     def get_schema_names(self) -> list[str]:
-        return [
+        return {
             *self.get_public_schema_name(),
             *self.get_tenant_schema_names(),
-        ]
+        }
 
     def enabled(self) -> list[PeriodicTask]:
         models = []
