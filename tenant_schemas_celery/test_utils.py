@@ -19,10 +19,16 @@ def create_client(name, schema_name, domain_url):
 class ClientFactory:
     def __init__(self) -> None:
         self.__clients = []
+        self.__no_drop_clients = []
 
     def create_client(self, name: str, schema_name: str, domain_url: str) -> Client:
         client = create_client(name, schema_name, domain_url)
         self.__clients.append(client)
+        return client
+
+    def create_client_no_drop(self, name: str, schema_name: str, domain_url: str) -> Client:
+        client = create_client(name, schema_name, domain_url)
+        self.__no_drop_clients.append(client)
         return client
 
     def __enter__(self) -> None:
@@ -33,4 +39,7 @@ class ClientFactory:
 
     def teardown(self) -> None:
         for client in self.__clients:
-            client.delete()
+            client.delete(force_drop=True)
+
+        for client in self.__no_drop_clients:
+            client.delete(force_drop=False)

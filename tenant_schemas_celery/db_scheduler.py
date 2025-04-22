@@ -20,13 +20,14 @@ class TenantAwareModelManager:
     def get_public_schema_name(self) -> list[str]:
         return [get_public_schema_name()]
 
-    def get_tenant_schema_names(self) -> list[str]:
-        return list(get_tenant_model().objects.values_list("schema_name", flat=True))
+    def get_tenant_schema_names(self, exclude_schemas: list[str]) -> list[str]:
+        return list(get_tenant_model().objects.exclude(schema_name__in=exclude_schemas).values_list("schema_name", flat=True))
 
     def get_schema_names(self) -> list[str]:
+        public_schemas = self.get_public_schema_name()
         return [
-            *self.get_public_schema_name(),
-            *self.get_tenant_schema_names(),
+            *public_schemas,
+            *self.get_tenant_schema_names(public_schemas),
         ]
 
     def enabled(self) -> list[PeriodicTask]:

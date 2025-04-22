@@ -41,6 +41,25 @@ def test_schedule_should_read_entries_from_tenant_schema(client_factory: ClientF
 
 
 @pytest.mark.usefixtures("transactional_db")
+def test_schedule_should_read_entries_from_public_tenant_schema(client_factory: ClientFactory) -> None:
+    scheduler = TenantAwareDatabaseScheduler(app=app)
+    tenant = client_factory.create_client_no_drop(
+        name="public_tenant", schema_name="public", domain_url="public.test.com"
+    )
+
+    with tenant_context(tenant):
+        PeriodicTask.objects.create(
+            name="test_tenant_task_name@public",
+            task="test_tenant_task",
+            interval=IntervalSchedule.objects.get_or_create(every=1, period="seconds")[0],
+        )
+
+    schedule = scheduler.schedule
+
+    assert "test_tenant_task_name@public" in schedule
+
+
+@pytest.mark.usefixtures("transactional_db")
 def test_schedule_should_read_mixed_entries__public_and_tenant(client_factory: ClientFactory) -> None:
     scheduler = TenantAwareDatabaseScheduler(app=app)
     tenant = client_factory.create_client(
