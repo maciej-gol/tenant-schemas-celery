@@ -5,8 +5,6 @@ from django_tenants.models import TenantMixin
 
 
 class Client(TenantMixin):
-    auto_drop_schema = True
-
     name = models.CharField(max_length=16)
     ready = models.BooleanField(default=False)
 
