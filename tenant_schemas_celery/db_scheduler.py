@@ -80,3 +80,5 @@ class TenantAwareDatabaseScheduler(TenantAwareSchedulerMixin, DatabaseScheduler)
         self.update_from_dict(
             self._tenant_aware_beat_schedule_to_dict(self.app.conf.beat_schedule)
         )
+    def enabled_models(self)-> list[PeriodicTask]:
+        return self.Model.objects.enabled()
