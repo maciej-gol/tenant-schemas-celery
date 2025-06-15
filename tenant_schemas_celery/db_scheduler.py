@@ -24,6 +24,7 @@ class TenantAwareModelManager:
         return list(get_tenant_model().objects.exclude(schema_name__in=exclude_schemas).values_list("schema_name", flat=True))
 
     def get_schema_names(self) -> list[str]:
+
         public_schemas = self.get_public_schema_name()
         return [
             *public_schemas,
