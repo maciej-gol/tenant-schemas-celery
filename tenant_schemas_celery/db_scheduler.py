@@ -18,15 +18,18 @@ def _task_schema(options):
     )
 
 class TenantAwareModelEntry(ModelEntry):
+    # Creation/updates triggered by update_from_dict(...)
     @classmethod
     def from_entry(cls, name, app=None, **entry):
         with schema_context(_task_schema(entry.get("options", {}))):
             return super().from_entry(name, app=app, **entry)
 
+    # Per-tick checks (this is where is_due() calls self.model.save())
     def is_due(self):
         with schema_context(_task_schema(self.options)):
             return super().is_due()
 
+    # Flush of run-count/last-run during scheduler.sync()
     def save(self):
         with schema_context(_task_schema(self.options)):
             return super().save()
