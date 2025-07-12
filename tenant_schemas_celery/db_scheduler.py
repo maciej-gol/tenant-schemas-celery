@@ -10,11 +10,26 @@ from tenant_schemas_celery.scheduler import TenantAwareSchedulerMixin
 logger = logging.getLogger(__name__)
 
 
+# Helper function to get the schema name from task options
+def _task_schema(options):
+    """helper to pull schema name from headers"""
+    return options.get("headers", {}).get(
+        "_schema_name", get_public_schema_name()
+    )
+
 class TenantAwareModelEntry(ModelEntry):
-    def save(self) -> None:
-        schema_name = self.options["headers"].get("_schema_name", get_public_schema_name())
-        with schema_context(schema_name):
-            super().save()
+    @classmethod
+    def from_entry(cls, name, app=None, **entry):
+        with schema_context(_task_schema(entry.get("options", {}))):
+            return super().from_entry(name, app=app, **entry)
+
+    def is_due(self):
+        with schema_context(_task_schema(self.options)):
+            return super().is_due()
+
+    def save(self):
+        with schema_context(_task_schema(self.options)):
+            return super().save()
 
 
 class TenantAwarePeriodicTasks:
