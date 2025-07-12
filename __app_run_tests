@@ -16,7 +16,7 @@ function run_silently() {
 run_silently apt update
 run_silently apt install -y libpq-dev tree
 
-run_silently pip install -r /app/requirements.txt django 'django_celery_beat' django_tenants ${ADDITIONAL_REQUIREMENTS}
+run_silently pip install -U -r /app/requirements.txt django 'django_celery_beat' django_tenants ${ADDITIONAL_REQUIREMENTS}
 run_silently pip install -e . 'importlib-metadata<5'
 pip freeze
 
