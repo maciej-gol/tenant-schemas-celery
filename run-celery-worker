@@ -3,4 +3,4 @@ pyenv activate tenant-schemas-celery
 cd test_app
 export DJANGO_SETTINGS_MODULE=test_app.settings
 
-celery -A tenant_schemas_celery.test_app:app worker -l INFO
+celery -A test_app.celery_app:app worker -l INFO -B --scheduler=tenant_schemas_celery.db_scheduler.TenantAwareDatabaseScheduler
