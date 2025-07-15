@@ -10,7 +10,7 @@ click==8.1.8
     # via pip-tools
 exceptiongroup==1.2.2
     # via pytest
-freezegun==1.5.2
+freezegun==1.5.3
     # via -r requirements.in
 importlib-metadata==8.6.1
     # via build
