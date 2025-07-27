@@ -1,7 +1,7 @@
 import json
 import pytest
 from tenant_schemas_celery.db_scheduler import TenantAwareDatabaseScheduler
-from django_celery_beat.models import PeriodicTask, IntervalSchedule
+from django_celery_beat.models import PeriodicTask, IntervalSchedule, ClockedSchedule
 from tenant_schemas_celery.test_app import app
 from tenant_schemas_celery.test_utils import ClientFactory
 from tenant_schemas_celery.compat import tenant_context
@@ -212,3 +212,68 @@ def test_schedule_should_update_tasks_in_proper_schema(client_factory: ClientFac
     with tenant_context(tenant_one):
         tenant_task.refresh_from_db()
     assert tenant_task.total_run_count == 1
+
+
+@pytest.mark.usefixtures("transactional_db")
+def test_schedule_should_properly_handle_one_off_tasks__public(client_factory: ClientFactory) -> None:
+    client_factory.create_client_no_drop(
+        name="public_tenant", schema_name="public", domain_url="public.test.com"
+    )
+    task = PeriodicTask.objects.create(
+        name="test_task_name@public",
+        task="test_task",
+        clocked=ClockedSchedule.objects.get_or_create(clocked_time="1990-01-01")[0],
+        one_off=True,
+    )
+
+    scheduler = TenantAwareDatabaseScheduler(app=app, sync_every_tasks=1)
+    for _ in range(10):
+        scheduler.tick()
+        task.refresh_from_db()
+        if task.total_run_count == 1:
+            break
+    else:
+        pytest.fail("task didn't run at all")
+
+    # Need to re-create the scheduler as the first one will have the entry scheduled far into the future.
+    scheduler = TenantAwareDatabaseScheduler(app=app, sync_every_tasks=1)
+    for _ in range(10):
+        scheduler.tick()
+        task.refresh_from_db()
+        if task.enabled is False:
+            break
+    else:
+        pytest.fail("task didn't disable itself after running one-off")
+
+
+@pytest.mark.usefixtures("transactional_db")
+def test_schedule_should_properly_handle_one_off_tasks__tenant(client_factory: ClientFactory) -> None:
+    tenant = client_factory.create_client(name="tenant1", schema_name="tenant1", domain_url="tenant1.test.com")
+    with tenant_context(tenant):
+        task = PeriodicTask.objects.create(
+            name="test_task_name@tenant1",
+            task="test_task",
+            clocked=ClockedSchedule.objects.get_or_create(clocked_time="1990-01-01")[0],
+            one_off=True,
+        )
+
+    scheduler = TenantAwareDatabaseScheduler(app=app, sync_every_tasks=1)
+    for _ in range(10):
+        scheduler.tick()
+        with tenant_context(tenant):
+            task.refresh_from_db()
+        if task.total_run_count == 1:
+            break
+    else:
+        pytest.fail("task didn't run at all")
+
+    # Need to re-create the scheduler as the first one will have the entry scheduled far into the future.
+    scheduler = TenantAwareDatabaseScheduler(app=app, sync_every_tasks=1)
+    for _ in range(10):
+        scheduler.tick()
+        with tenant_context(tenant):
+            task.refresh_from_db()
+        if task.enabled is False:
+            break
+    else:
+        pytest.fail("task didn't disable itself after running one-off")
