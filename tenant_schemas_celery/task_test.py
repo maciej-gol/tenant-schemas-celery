@@ -6,6 +6,8 @@ import pytest
 
 from tenant_schemas_celery.task import TenantTask
 from tenant_schemas_celery.app import CeleryApp
+from tenant_schemas_celery.compat import tenant_context
+from tenant_schemas_celery.test_tasks import get_schema_name
 from tenant_schemas_celery.test_utils import create_client
 from django.conf import settings
 
@@ -147,6 +149,25 @@ def test_get_tenant_databases_custom_settings(celery_conf):
 
     # Should prioritize the task class's preference over Celery app config
     assert CustomTask.get_tenant_databases() == ("customdb",)
+
+
+@pytest.mark.parametrize("task_apply_func", [get_schema_name.apply, get_schema_name.apply_async])
+def test_apply_should_not_leak_schema_name_when_headers_passed(transactional_db, task_apply_func) -> None:
+    tenant_one = create_client(
+        name="tenant1", schema_name="tenant1", domain_url="tenant1.test.com"
+    )
+    tenant_two = create_client(
+        name="tenant2", schema_name="tenant2", domain_url="tenant2.test.com"
+    )
+    headers = {"a": "b"}
+
+    with tenant_context(tenant_one):
+        schema_name = task_apply_func(headers=headers)
+        assert schema_name.get() == tenant_one.schema_name
+
+    with tenant_context(tenant_two):
+        schema_name = task_apply_func(headers=headers)
+        assert schema_name.get() == tenant_two.schema_name
 
 
 @pytest.mark.skipif(celery.VERSION >= (5, 4, 0), reason="DjangoTask is only available on Celery 5.4+")

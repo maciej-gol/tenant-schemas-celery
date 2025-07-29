@@ -7,6 +7,8 @@ from django.db import connection, connections
 
 from celery.signals import task_prerun, task_postrun
 
+from tenant_schemas_celery.task import headers_with_schema
+
 
 def get_schema_name_from_task(task, kwargs):
     # In some cases (like Redis broker) headers are merged with `task.request`.
@@ -91,13 +93,6 @@ class CeleryApp(Celery):
             attribute="_app",
         )
 
-    def _update_headers(self, kw):
-        kw["headers"] = kw.get("headers") or {}
-        self._add_current_schema(kw["headers"])
-
-    def _add_current_schema(self, kwds):
-        kwds["_schema_name"] = kwds.get("_schema_name", connection.schema_name)
-
     def send_task(self, name, args=None, kwargs=None, **options):
-        self._update_headers(options)
+        options["headers"] = headers_with_schema(options.get("headers") or {})
         return super().send_task(name, args=args, kwargs=kwargs, **options)
