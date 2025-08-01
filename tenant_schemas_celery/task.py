@@ -1,3 +1,5 @@
+import copy
+from typing import Optional
 from celery import Task
 from django.db import connection
 from tenant_schemas_celery.cache import SimpleCache
@@ -18,6 +20,20 @@ try:
     BaseTask = DjangoTask
 except ImportError:
     BaseTask = Task
+
+
+def headers_with_schema(headers: Optional[dict[str, object]]) -> dict[str, object]:
+    """Add current schema to the headers, if not already present.
+
+    Will return a copy of the headers if the schema was added.
+    Otherwise, returns the original headers.
+    """
+    if headers and "_schema_name" in headers:
+        return headers
+
+    headers = copy.deepcopy(headers) if headers else {}
+    headers["_schema_name"] = connection.schema_name
+    return headers
 
 
 class TenantTask(BaseTask):
@@ -61,10 +77,6 @@ class TenantTask(BaseTask):
 
         return cached_value
 
-    def _update_headers(self, kw):
-        kw.setdefault("headers", {})
-        kw["headers"].setdefault("_schema_name", connection.schema_name)
-
     def apply(self, args=None, kwargs=None, *arg, **kw):
-        self._update_headers(kw)
+        kw["headers"] = headers_with_schema(kw.get("headers") or {})
         return super().apply(args, kwargs, *arg, **kw)
