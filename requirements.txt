@@ -16,7 +16,7 @@ importlib-metadata==8.6.1
     # via build
 iniconfig==2.1.0
     # via pytest
-more-itertools==10.7.0
+more-itertools==10.8.0
     # via -r requirements.in
 packaging==25.0
     # via
