@@ -26,7 +26,7 @@ pip-tools==7.5.0
     # via -r requirements.in
 pluggy==1.5.0
     # via pytest
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.11
     # via -r requirements.in
 pygments==2.19.2
     # via pytest
