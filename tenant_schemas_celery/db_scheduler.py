@@ -62,7 +62,7 @@ class TenantAwareDatabaseScheduler(TenantAwareSchedulerMixin, DatabaseScheduler)
             with schema_context(schema_name):
                 for task in super().enabled_models_qs():
                     if previously_seen_schema := names_seen.get(task.name):
-                        raise ValueError(f"duplicate periodic task name: {task.name!r}. Previously seen in schema: {previously_seen_schema!r}.")
+                        raise ValueError(f"duplicate periodic task name {task.name!r} in schema {schema_name!r}. Previously seen in schema: {previously_seen_schema!r}.")
 
                     headers = json.loads(task.headers)
                     headers.setdefault("_schema_name", schema_name)
