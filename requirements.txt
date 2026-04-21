@@ -23,7 +23,7 @@ packaging==25.0
     #   build
     #   pytest
     #   wheel
-pip-tools==7.5.2
+pip-tools==7.5.3
     # via -r requirements.in
 pluggy==1.5.0
     # via pytest
