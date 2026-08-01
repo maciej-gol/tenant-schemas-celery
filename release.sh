@@ -11,6 +11,9 @@ set -euo pipefail
 #   ./release.sh --upload   # also run `twine upload dist/*`
 #   Flags can be combined:   ./release.sh --yes --upload
 #
+# If the tag already exists it will ask before overwriting it (force-push).
+# NOTE: overwriting a tag requires --yes (or answering y) at the prompt.
+#
 # Prerequisites:
 #   - python, python -m build (or setuptools) on PATH
 #   - twine on PATH (only for --upload)
@@ -59,23 +62,37 @@ OWNER_REPO="$(sed -E 's#(git@|https://)[^:/]+[:/]##; s#\.git$##' <<< "$REMOTE_UR
 RELEASE_URL="https://github.com/$OWNER_REPO/releases/new?tag=$VERSION"
 
 # ---------------------------------------------------------------------------
-# 3. Confirm the tag does not already exist
+# 3. Check whether the tag already exists; decide on overwrite
 # ---------------------------------------------------------------------------
+OVERWRITE=""
 if git rev-parse -q --verify "refs/tags/$VERSION" >/dev/null; then
-    die "tag '$VERSION' already exists; not overwriting"
+    info "tag '$VERSION' already exists locally"
+    read -r -p "[release] overwrite tag '$VERSION' (force-push)? [y/N] " -n 1 REPLY
+    echo
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+        OVERWRITE="--force"
+    else
+        die "aborted; tag '$VERSION' already exists"
+    fi
 fi
 
+TAG_NOTE=""
+[[ -n "$OVERWRITE" ]] && TAG_NOTE=" (force-overwrite)"
 info "version:      $VERSION"
 info "branch:       $BRANCH"
 info "remote:       $OWNER_REPO"
-info "will tag:     $VERSION"
+info "will tag:     $VERSION$TAG_NOTE"
 info "will build:   sdist + wheel"
 info "will upload:  $([ "$DO_UPLOAD" == "--upload" ] && echo "yes (twine)" || echo "no")"
 
 # ---------------------------------------------------------------------------
 # 4. Create and (optionally) push the tag
 # ---------------------------------------------------------------------------
-git tag "$VERSION"
+if [[ -n "$OVERWRITE" ]]; then
+    git tag -f "$VERSION"
+else
+    git tag "$VERSION"
+fi
 
 if [[ "$FORCE_YES" != "--yes" ]]; then
     read -r -p "[release] push tag '$VERSION' to origin? [y/N] " -n 1 REPLY
@@ -88,8 +105,13 @@ if [[ "$FORCE_YES" != "--yes" ]]; then
 fi
 
 if [[ "$FORCE_YES" == "--yes" ]]; then
-    git push "$REMOTE" "$VERSION"
-    info "tag '$VERSION' pushed"
+    if [[ -n "$OVERWRITE" ]]; then
+        git push --force "$REMOTE" "$VERSION"
+        info "tag '$VERSION' force-pushed (overwritten)"
+    else
+        git push "$REMOTE" "$VERSION"
+        info "tag '$VERSION' pushed"
+    fi
 fi
 
 # ---------------------------------------------------------------------------
