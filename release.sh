@@ -15,8 +15,9 @@ set -euo pipefail
 # NOTE: overwriting a tag requires --yes (or answering y) at the prompt.
 #
 # Prerequisites:
-#   - python, python -m build (or setuptools) on PATH
-#   - twine on PATH (only for --upload)
+#   - the 'tenant-schemas-celery' pyenv env (preferred), or a python 3.11+ on PATH
+#   - build (or setuptools) installed in that interpreter
+#   - twine in that interpreter (only for --upload)
 #   - git remote "origin" pointing at the GitHub repository
 
 VERSION_FILE="VERSION"
@@ -34,6 +35,29 @@ for arg in "$@"; do
         *) die "unknown argument: $arg" ;;
     esac
 done
+
+# ---------------------------------------------------------------------------
+# 0. Resolve the Python interpreter and twine from the project pyenv env
+#    (falling back to whatever is on PATH). This avoids depending on the
+#    caller having the pyenv environment activated in their shell.
+# ---------------------------------------------------------------------------
+PYENV_ENV="tenant-schemas-celery"
+PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
+PYENV_PY="$PYENV_ROOT/versions/$PYENV_ENV/bin/python"
+PYENV_TWINE="$PYENV_ROOT/versions/$PYENV_ENV/bin/twine"
+
+if [[ -x "$PYENV_PY" ]]; then
+    PYTHON="$PYENV_PY"
+else
+    PYTHON="$(command -v python || true)"
+    [[ -n "$PYTHON" ]] || die "no python found (tried pyenv env '$PYENV_ENV' and PATH)"
+fi
+
+if [[ -x "$PYENV_TWINE" ]]; then
+    TWINE="$PYENV_TWINE"
+else
+    TWINE="$(command -v twine || true)"
+fi
 
 # ---------------------------------------------------------------------------
 # 1. Sanity checks
@@ -83,6 +107,7 @@ info "branch:       $BRANCH"
 info "remote:       $OWNER_REPO"
 info "will tag:     $VERSION$TAG_NOTE"
 info "will build:   sdist + wheel"
+info "python:       $("$PYTHON" --version 2>&1) ($PYTHON)"
 info "will upload:  $([ "$DO_UPLOAD" == "--upload" ] && echo "yes (twine)" || echo "no")"
 
 # ---------------------------------------------------------------------------
@@ -119,13 +144,13 @@ fi
 # ---------------------------------------------------------------------------
 rm -rf dist build *.egg-info
 
-if python -m build --version >/dev/null 2>&1; then
-    python -m build
-elif python -c "import setuptools" >/dev/null 2>&1; then
+if "$PYTHON" -m build --version >/dev/null 2>&1; then
+    "$PYTHON" -m build
+elif "$PYTHON" -c "import setuptools" >/dev/null 2>&1; then
     info "python -m build not available; falling back to setup.py"
-    python setup.py sdist bdist_wheel
+    "$PYTHON" setup.py sdist bdist_wheel
 else
-    die "neither 'build' nor 'setuptools' installed"
+    die "neither 'build' nor 'setuptools' installed in $("$PYTHON" --version 2>&1)"
 fi
 
 ls -1 dist/*.{whl,tar.gz} 2>/dev/null \
@@ -135,9 +160,11 @@ ls -1 dist/*.{whl,tar.gz} 2>/dev/null \
 # 6. Optionally upload to PyPI
 # ---------------------------------------------------------------------------
 if [[ "$DO_UPLOAD" == "--upload" ]]; then
-    command -v twine >/dev/null 2>&1 || die "twine not found on PATH (required for --upload)"
+    [[ -n "$TWINE" && -x "$TWINE" ]] \
+        || die "twine not found (pyenv env '$PYENV_ENV' or PATH); required for --upload"
     info "uploading to PyPI with twine..."
-    twine upload dist/*
+    "$TWINE" --version
+    "$TWINE" upload dist/*
     info "upload complete"
 fi
 
