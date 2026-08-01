@@ -8,13 +8,13 @@ services:
       - POSTGRES_DB=tenant_celery
 
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3.13.2
 
   redis:
     image: redis
 
   app:
-    image: "python:${PYTHON_VERSION:-3.9}-slim"
+    image: "python:${PYTHON_VERSION:-3.11}-slim"
     depends_on:
       - postgres
       - redis

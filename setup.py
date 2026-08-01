@@ -27,7 +27,7 @@ setup(
         'celery>=5',
     ],
     packages=find_packages(),
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     name='tenant-schemas-celery',
     license='MIT',
     long_description=long_description,
