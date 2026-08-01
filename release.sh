@@ -3,22 +3,34 @@ set -euo pipefail
 
 # Release script for tenant-schemas-celery.
 # Tags the current version, builds the sdist+wheel, and prints a link
-# to create the matching GitHub release.
+# to create the matching GitHub release. Optionally uploads to PyPI.
 #
 # Usage:
 #   ./release.sh            # interactive: confirms before pushing the tag
-#   ./release.sh --yes      # skip confirmation
+#   ./release.sh --yes      # skip the push-tag confirmation
+#   ./release.sh --upload   # also run `twine upload dist/*`
+#   Flags can be combined:   ./release.sh --yes --upload
 #
 # Prerequisites:
-#   - python, python -m build (or setuptools), twine available on PATH
+#   - python, python -m build (or setuptools) on PATH
+#   - twine on PATH (only for --upload)
 #   - git remote "origin" pointing at the GitHub repository
 
 VERSION_FILE="VERSION"
 REMOTE="origin"
-FORCE_YES="${1:-}"
+FORCE_YES=""
+DO_UPLOAD=""
 
 info()  { printf '\033[1;34m[release]\033[0m %s\n' "$*"; }
 die()   { printf '\033[1;31m[release] error:\033[0m %s\n' "$*" >&2; exit 1; }
+
+for arg in "$@"; do
+    case "$arg" in
+        --yes)   FORCE_YES="--yes" ;;
+        --upload) DO_UPLOAD="--upload" ;;
+        *) die "unknown argument: $arg" ;;
+    esac
+done
 
 # ---------------------------------------------------------------------------
 # 1. Sanity checks
@@ -58,6 +70,7 @@ info "branch:       $BRANCH"
 info "remote:       $OWNER_REPO"
 info "will tag:     $VERSION"
 info "will build:   sdist + wheel"
+info "will upload:  $([ "$DO_UPLOAD" == "--upload" ] && echo "yes (twine)" || echo "no")"
 
 # ---------------------------------------------------------------------------
 # 4. Create and (optionally) push the tag
@@ -97,7 +110,17 @@ ls -1 dist/*.{whl,tar.gz} 2>/dev/null \
     || die "expected sdist/wheel not produced in dist/"
 
 # ---------------------------------------------------------------------------
-# 6. Print the release link
+# 6. Optionally upload to PyPI
+# ---------------------------------------------------------------------------
+if [[ "$DO_UPLOAD" == "--upload" ]]; then
+    command -v twine >/dev/null 2>&1 || die "twine not found on PATH (required for --upload)"
+    info "uploading to PyPI with twine..."
+    twine upload dist/*
+    info "upload complete"
+fi
+
+# ---------------------------------------------------------------------------
+# 7. Print the release link
 # ---------------------------------------------------------------------------
 echo
 info "build artifacts in: $(pwd)/dist"
