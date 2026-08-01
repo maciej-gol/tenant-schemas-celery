@@ -198,3 +198,5 @@ The `2.x` series support Python>=3.7.
 The `1.x` series support Python>=3.6. Python 3.6 reached EOL 2021-12.
 
 The `0.x` series are the last one to support Python<3.6.
+
+The `>=5.0` series drop support for Python 3.9 and 3.10.
