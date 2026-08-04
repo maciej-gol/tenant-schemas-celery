@@ -35,7 +35,7 @@ pytest==9.0.3
     # via
     #   -r requirements.in
     #   pytest-django
-pytest-django==4.11.1
+pytest-django==4.12.0
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via freezegun
