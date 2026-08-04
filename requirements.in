@@ -1,6 +1,6 @@
 pip-tools>=7.6.0
 pytest
-pytest-django>=3.4.3
+pytest-django>=4.12.0
 freezegun
 more-itertools<12
 psycopg2-binary
