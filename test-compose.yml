@@ -23,6 +23,7 @@ services:
       - BROKER_URL=${BROKER_URL:-amqp://guest:guest@rabbitmq:5672/}
       - ADDITIONAL_REQUIREMENTS=${ADDITIONAL_REQUIREMENTS}
       - TASK_TENANT_CACHE_SECONDS=10
+      - CI=${CI:-}
 
     volumes:
       - ./tenant_schemas_celery:/app/tenant_schemas_celery
@@ -33,4 +34,4 @@ services:
       - ./VERSION:/app/VERSION
       - ./README.md:/app/README.md
 
-    command: ["bash", "-c", "cd /app && ./__app_run_tests || sleep infinity"]
+    command: ["bash", "-c", "cd /app && ./__app_run_tests || { test_code=$$?; [ \"$$CI\" = \"true\" ] && exit $$test_code || sleep infinity; }"]
