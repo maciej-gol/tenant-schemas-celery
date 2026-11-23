@@ -1,4 +1,4 @@
-pip-tools>=7.6.2
+pip-tools>=7.7.0
 pytest
 pytest-django>=4.14.0
 freezegun
